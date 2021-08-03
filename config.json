@@ -1,0 +1,9 @@
+{
+    "api_port": "8080",
+    "mongo_url": "mongodb://localhost:27017",
+    "mongo_table": "devicerepository",
+    "mongo_device_collection": "device",
+    "mongo_repl_set": true,
+    "debug": false,
+    "device_manager_url": "http://device-manager:8080"
+}
