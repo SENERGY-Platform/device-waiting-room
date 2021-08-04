@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -79,6 +80,26 @@ func getBsonFieldName(obj interface{}, fieldName string) (bsonName string, err e
 	}
 	tags, err := bsoncodec.DefaultStructTagParser.ParseStructTags(field)
 	return tags.Name, err
+}
+
+func getBsonFieldPath(obj interface{}, path string) (bsonPath string, err error) {
+	t := reflect.TypeOf(obj)
+	pathParts := strings.Split(path, ".")
+	bsonPathParts := []string{}
+	for _, name := range pathParts {
+		field, found := t.FieldByName(name)
+		if !found {
+			return "", errors.New("field path '" + path + "' not found at '" + name + "'")
+		}
+		tags, err := bsoncodec.DefaultStructTagParser.ParseStructTags(field)
+		if err != nil {
+			return bsonPath, err
+		}
+		bsonPathParts = append(bsonPathParts, tags.Name)
+		t = field.Type
+	}
+	bsonPath = strings.Join(bsonPathParts, ".")
+	return
 }
 
 func getTimeoutContext() (context.Context, context.CancelFunc) {

@@ -21,7 +21,7 @@ var deviceHiddenKey string
 
 func init() {
 	var err error
-	deviceLocalIdKey, err = getBsonFieldName(model.Device{}, deviceLocalIdFieldName)
+	deviceLocalIdKey, err = getBsonFieldPath(model.Device{}, deviceLocalIdFieldName)
 	if err != nil {
 		log.Fatal(err)
 	}
