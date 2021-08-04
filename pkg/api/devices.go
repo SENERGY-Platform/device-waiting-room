@@ -130,7 +130,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		if device.Id != id {
+		if device.LocalId != id {
 			http.Error(writer, "expect path local_id == body.local_id", http.StatusBadRequest)
 			return
 		}
