@@ -65,7 +65,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 
 		showHiddenStr := request.URL.Query().Get("show_hidden")
 		if showHiddenStr == "" {
-			sort = "false"
+			showHiddenStr = "false"
 		}
 		showHidden, err := strconv.ParseBool(showHiddenStr)
 		if err != nil {
