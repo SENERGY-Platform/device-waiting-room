@@ -70,4 +70,5 @@ type Controller interface {
 	ReadDevice(token auth.Token, localId string) (result model.Device, err error, errCode int)
 	SetDevice(token auth.Token, device model.Device) (result model.Device, err error, errCode int)
 	UseDevice(token auth.Token, localId string) (err error, errCode int)
+	DeleteDevice(token auth.Token, id string) (err error, errCode int)
 }

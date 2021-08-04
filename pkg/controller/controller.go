@@ -87,6 +87,18 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 	return this.db.RemoveDevice(localId)
 }
 
+func (this *Controller) DeleteDevice(token auth.Token, localId string) (err error, errCode int) {
+	var device model.Device
+	device, err, errCode = this.db.ReadDevice(localId)
+	if err != nil {
+		return err, errCode
+	}
+	if device.UserId != token.GetUserId() {
+		return errors.New("access denied"), http.StatusForbidden
+	}
+	return this.db.RemoveDevice(localId)
+}
+
 func (this *Controller) CreateInDeviceManager(token string, device device_manager_model.Device) (err error, errCode int) {
 	b := new(bytes.Buffer)
 	err = json.NewEncoder(b).Encode(device)

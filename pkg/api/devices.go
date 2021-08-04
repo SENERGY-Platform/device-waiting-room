@@ -122,6 +122,22 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		return
 	})
 
+	router.DELETE(resource+"/:local_id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		localId := params.ByName("local_id")
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		err, errCode := control.DeleteDevice(token, localId)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		return
+	})
+
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		device := model.Device{}

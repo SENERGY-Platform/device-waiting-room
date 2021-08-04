@@ -268,6 +268,16 @@ func TestDevices(t *testing.T) {
 			},
 		},
 	}))
+
+	t.Run("delete device 2 as user1", deleteDevice(config, "user1", "test_2"))
+
+	t.Run("list user1 after delete", listDevices(config, "user1", model.DeviceList{
+		Total:  0,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{},
+	}))
 }
 
 func listDevices(config configuration.Config, userId string, expected model.DeviceList) func(t *testing.T) {
@@ -407,6 +417,34 @@ func headDevice(config configuration.Config, userId string, deviceId string, exp
 		}
 		if resp.StatusCode != expectedStatusCode {
 			t.Error(resp.StatusCode)
+			return
+		}
+	}
+}
+
+func deleteDevice(config configuration.Config, userId string, deviceId string) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, err := createToken(userId)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req, err := http.NewRequest("DELETE", "http://localhost:"+config.ApiPort+"/devices/"+deviceId, nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		req.WithContext(ctx)
+		req.Header.Set("Authorization", token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.StatusCode, string(b))
 			return
 		}
 	}
