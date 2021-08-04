@@ -280,6 +280,156 @@ func TestDevices(t *testing.T) {
 	}))
 }
 
+func TestHiddenDevices(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	config, err := configuration.Load("./../../config.json")
+	if err != nil {
+		t.Fatal("ERROR: unable to load config", err)
+	}
+
+	config.DeviceManagerUrl = DeviceManagerMock(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
+		return nil, 200
+	})
+
+	mongoPort, _, err := MongoContainer(ctx, wg)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	config.MongoUrl = "mongodb://localhost:" + mongoPort
+
+	freePort, err := getFreePort()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	config.ApiPort = strconv.Itoa(freePort)
+
+	err = pkg.Start(ctx, wg, config)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+		Device: device_manager_model.Device{
+			LocalId: "test_1",
+			Name:    "foo",
+		},
+	}))
+
+	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+		Device: device_manager_model.Device{
+			LocalId: "test_2",
+			Name:    "bar",
+		},
+	}))
+
+	t.Run("list", listDevices(config, "user1", model.DeviceList{
+		Total:  2,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "foo",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+
+	t.Run("list with hidden", listHiddenDevices(config, "user1", model.DeviceList{
+		Total:  2,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "foo",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+
+	t.Run("update device 1", sendDevice(config, "user1", model.Device{
+		Device: device_manager_model.Device{
+			LocalId: "test_1",
+			Name:    "foo",
+		},
+		Hidden: true,
+	}))
+
+	t.Run("list after update", listDevices(config, "user1", model.DeviceList{
+		Total:  1,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+
+	t.Run("list with hidden after update", listHiddenDevices(config, "user1", model.DeviceList{
+		Total:  2,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "foo",
+				},
+				UserId: "user1",
+				Hidden: true,
+			},
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+}
+
 func listDevices(config configuration.Config, userId string, expected model.DeviceList) func(t *testing.T) {
 	return func(t *testing.T) {
 		token, err := createToken(userId)
@@ -288,6 +438,47 @@ func listDevices(config configuration.Config, userId string, expected model.Devi
 			return
 		}
 		req, err := http.NewRequest("GET", "http://localhost:"+config.ApiPort+"/devices?limit=10", nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		req.WithContext(ctx)
+		req.Header.Set("Authorization", token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.StatusCode, string(b))
+			return
+		}
+		actual := model.DeviceList{}
+		err = json.NewDecoder(resp.Body).Decode(&actual)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		actual = normalizeDeviceList(actual)
+		expected = normalizeDeviceList(expected)
+		if !reflect.DeepEqual(actual, expected) {
+			t.Error(actual, expected)
+			return
+		}
+	}
+}
+
+func listHiddenDevices(config configuration.Config, userId string, expected model.DeviceList) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, err := createToken(userId)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req, err := http.NewRequest("GET", "http://localhost:"+config.ApiPort+"/devices?limit=10&show_hidden=true", nil)
 		if err != nil {
 			t.Error(err)
 			return
