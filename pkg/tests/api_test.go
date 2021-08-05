@@ -197,5 +197,38 @@ func TestDevices(t *testing.T) {
 		Result: []model.Device{},
 	}))
 
+	t.Run("recreate device 1", sendDevice(config, "user1", model.Device{
+		Device: device_manager_model.Device{
+			LocalId: "test_1",
+			Name:    "bar",
+		},
+	}))
+
+	t.Run("list user1 after recreate", listDevices(config, "user1", model.DeviceList{
+		Total:  1,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+
 	time.Sleep(2 * time.Second)
+
+	//device1 should be deleted again because /used/devices deletes again after waiting period
+	t.Run("list user1 after waiting time", listDevices(config, "user1", model.DeviceList{
+		Total:  0,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{},
+	}))
 }

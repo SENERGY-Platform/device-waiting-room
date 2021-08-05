@@ -34,14 +34,18 @@ func DeviceManagerMock(ctx context.Context, wg *sync.WaitGroup, onCall func(path
 		if code == http.StatusOK {
 			if resp != nil {
 				writer.Write(resp)
+				return
 			} else {
 				writer.WriteHeader(code)
+				return
 			}
 		}
 		if resp != nil {
 			http.Error(writer, string(resp), code)
+			return
 		} else {
 			writer.WriteHeader(code)
+			return
 		}
 	}))
 	wg.Add(1)
