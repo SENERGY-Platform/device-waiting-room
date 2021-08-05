@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -40,11 +41,12 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 			http.Error(writer, err.Error(), http.StatusUnauthorized)
 			return
 		}
+		options := persistence.ListOptions{}
 		limitStr := request.URL.Query().Get("limit")
 		if limitStr == "" {
 			limitStr = "100"
 		}
-		limit, err := strconv.Atoi(limitStr)
+		options.Limit, err = strconv.Atoi(limitStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
@@ -53,27 +55,29 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		if offsetStr == "" {
 			offsetStr = "0"
 		}
-		offset, err := strconv.Atoi(offsetStr)
+		options.Offset, err = strconv.Atoi(offsetStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		sort := request.URL.Query().Get("sort")
-		if sort == "" {
-			sort = "local_id"
+		options.Sort = request.URL.Query().Get("sort")
+		if options.Sort == "" {
+			options.Sort = "local_id"
 		}
 
 		showHiddenStr := request.URL.Query().Get("show_hidden")
 		if showHiddenStr == "" {
 			showHiddenStr = "false"
 		}
-		showHidden, err := strconv.ParseBool(showHiddenStr)
+		options.ShowHidden, err = strconv.ParseBool(showHiddenStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		result, err, errCode := control.ListDevices(token, limit, offset, sort, showHidden)
+		options.Search = request.URL.Query().Get("search")
+
+		result, err, errCode := control.ListDevices(token, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

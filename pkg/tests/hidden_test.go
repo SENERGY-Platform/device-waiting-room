@@ -6,13 +6,12 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"net/http"
 	"strconv"
 	"sync"
 	"testing"
 )
 
-func TestDevices(t *testing.T) {
+func TestHiddenDevices(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -47,24 +46,10 @@ func TestDevices(t *testing.T) {
 		return
 	}
 
-	t.Run("empty list", listDevices(config, "user1", model.DeviceList{
-		Total:  0,
-		Limit:  10,
-		Offset: 0,
-		Sort:   "local_id",
-		Result: []model.Device{},
-	}))
-
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
 		Device: device_manager_model.Device{
 			LocalId: "test_1",
 			Name:    "foo",
-			Attributes: []device_manager_model.Attribute{
-				{
-					Key:   "device/type",
-					Value: "HEAT_COST_ALLOCATOR",
-				},
-			},
 		},
 	}))
 
@@ -75,35 +60,7 @@ func TestDevices(t *testing.T) {
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user2", model.Device{
-		Device: device_manager_model.Device{
-			LocalId: "test_3",
-			Name:    "bar",
-		},
-	}))
-
-	t.Run("read device 2", readDevice(config, "user1", "test_2", model.Device{
-		Device: device_manager_model.Device{
-			LocalId: "test_2",
-			Name:    "bar",
-		},
-		UserId: "user1",
-		Hidden: false,
-	}))
-
-	t.Run("read device 3", readDevice(config, "user2", "test_3", model.Device{
-		Device: device_manager_model.Device{
-			LocalId: "test_3",
-			Name:    "bar",
-		},
-		UserId: "user2",
-		Hidden: false,
-	}))
-
-	t.Run("head device 2 as user1", headDevice(config, "user1", "test_2", http.StatusOK))
-	t.Run("head device 2 as user2", headDevice(config, "user2", "test_2", http.StatusForbidden))
-
-	t.Run("list user1", listDevices(config, "user1", model.DeviceList{
+	t.Run("list", listDevices(config, "user1", model.DeviceList{
 		Total:  2,
 		Limit:  10,
 		Offset: 0,
@@ -113,12 +70,31 @@ func TestDevices(t *testing.T) {
 				Device: device_manager_model.Device{
 					LocalId: "test_1",
 					Name:    "foo",
-					Attributes: []device_manager_model.Attribute{
-						{
-							Key:   "device/type",
-							Value: "HEAT_COST_ALLOCATOR",
-						},
-					},
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
+	}))
+
+	t.Run("list with hidden", listHiddenDevices(config, "user1", model.DeviceList{
+		Total:  2,
+		Limit:  10,
+		Offset: 0,
+		Sort:   "local_id",
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "foo",
 				},
 				UserId: "user1",
 				Hidden: false,
@@ -137,38 +113,12 @@ func TestDevices(t *testing.T) {
 	t.Run("update device 1", sendDevice(config, "user1", model.Device{
 		Device: device_manager_model.Device{
 			LocalId: "test_1",
-			Name:    "bar",
+			Name:    "foo",
 		},
+		Hidden: true,
 	}))
 
-	t.Run("list user1 after update", listDevices(config, "user1", model.DeviceList{
-		Total:  2,
-		Limit:  10,
-		Offset: 0,
-		Sort:   "local_id",
-		Result: []model.Device{
-			{
-				Device: device_manager_model.Device{
-					LocalId: "test_1",
-					Name:    "bar",
-				},
-				UserId: "user1",
-				Hidden: false,
-			},
-			{
-				Device: device_manager_model.Device{
-					LocalId: "test_2",
-					Name:    "bar",
-				},
-				UserId: "user1",
-				Hidden: false,
-			},
-		},
-	}))
-
-	t.Run("use device 1 as user1", useDevice(config, "user1", "test_1"))
-
-	t.Run("list user1 after use", listDevices(config, "user1", model.DeviceList{
+	t.Run("list after update", listDevices(config, "user1", model.DeviceList{
 		Total:  1,
 		Limit:  10,
 		Offset: 0,
@@ -185,13 +135,28 @@ func TestDevices(t *testing.T) {
 		},
 	}))
 
-	t.Run("delete device 2 as user1", deleteDevice(config, "user1", "test_2"))
-
-	t.Run("list user1 after delete", listDevices(config, "user1", model.DeviceList{
-		Total:  0,
+	t.Run("list with hidden after update", listHiddenDevices(config, "user1", model.DeviceList{
+		Total:  2,
 		Limit:  10,
 		Offset: 0,
 		Sort:   "local_id",
-		Result: []model.Device{},
+		Result: []model.Device{
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_1",
+					Name:    "foo",
+				},
+				UserId: "user1",
+				Hidden: true,
+			},
+			{
+				Device: device_manager_model.Device{
+					LocalId: "test_2",
+					Name:    "bar",
+				},
+				UserId: "user1",
+				Hidden: false,
+			},
+		},
 	}))
 }

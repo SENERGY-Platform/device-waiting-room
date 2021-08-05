@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -66,7 +67,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config,
 }
 
 type Controller interface {
-	ListDevices(token auth.Token, limit int, offset int, sort string, showHidden bool) (result model.DeviceList, err error, errCode int)
+	ListDevices(token auth.Token, options persistence.ListOptions) (result model.DeviceList, err error, errCode int)
 	ReadDevice(token auth.Token, localId string) (result model.Device, err error, errCode int)
 	SetDevice(token auth.Token, device model.Device) (result model.Device, err error, errCode int)
 	UseDevice(token auth.Token, localId string) (err error, errCode int)

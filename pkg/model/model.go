@@ -18,5 +18,6 @@ type DeviceList struct {
 	Limit  int      `json:"limit"`
 	Offset int      `json:"offset"`
 	Sort   string   `json:"sort"`
+	Search string   `json:"search,omitempty"`
 	Result []Device `json:"result"`
 }
