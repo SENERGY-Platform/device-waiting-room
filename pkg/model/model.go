@@ -10,7 +10,7 @@ type Device struct {
 	UserId     string    `json:"user_id"`
 	Hidden     bool      `json:"hidden"`
 	CreatedAt  time.Time `json:"created_at"`
-	LastUpdate time.Time `json:"last_update"`
+	LastUpdate time.Time `json:"updated_at"`
 }
 
 type DeviceList struct {
