@@ -9,6 +9,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	"log"
 	"net/http"
 	"runtime/debug"
 	"time"
@@ -83,8 +84,28 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 	}
 	err, errCode = this.CreateInDeviceManager(token.Token, device.Device)
 	if err != nil {
-		return
+		return err, errCode
 	}
+
+	go func() {
+		if this.config.DeleteAfterUseWaitDuration == "" || this.config.DeleteAfterUseWaitDuration == "-" {
+			return
+		}
+		d, err := time.ParseDuration(this.config.DeleteAfterUseWaitDuration)
+		if err != nil {
+			log.Println("WARNING: unable to parse DeleteAfterUseWaitDuration;", err)
+			return
+		}
+		if d == 0 {
+			return
+		}
+		time.Sleep(d)
+		err, code := this.db.RemoveDevice(localId)
+		if err != nil {
+			log.Println("ERROR:", code, err)
+			debug.PrintStack()
+		}
+	}()
 	return this.db.RemoveDevice(localId)
 }
 

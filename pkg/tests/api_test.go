@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestDevices(t *testing.T) {
@@ -22,6 +23,7 @@ func TestDevices(t *testing.T) {
 	if err != nil {
 		t.Fatal("ERROR: unable to load config", err)
 	}
+	config.DeleteAfterUseWaitDuration = "1s"
 
 	config.DeviceManagerUrl = DeviceManagerMock(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
 		return nil, 200
@@ -194,4 +196,6 @@ func TestDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{},
 	}))
+
+	time.Sleep(2 * time.Second)
 }
