@@ -16,11 +16,15 @@ const deviceLocalIdFieldName = "Device.LocalId"
 const deviceNameIdFieldName = "Device.Name"
 const deviceUserIdFieldName = "UserId"
 const deviceHiddenFieldName = "Hidden"
+const deviceCreatedAtFieldName = "CreatedAt"
+const deviceUpdatedAtFieldName = "LastUpdate"
 
 var deviceLocalIdKey string
 var deviceNameKey string
 var deviceUserIdKey string
 var deviceHiddenKey string
+var deviceCreatedAtKey string
+var deviceUpdatedAtKey string
 
 func init() {
 	var err error
@@ -40,6 +44,14 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	deviceCreatedAtKey, err = getBsonFieldName(model.Device{}, deviceCreatedAtFieldName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	deviceUpdatedAtKey, err = getBsonFieldName(model.Device{}, deviceUpdatedAtFieldName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	CreateCollections = append(CreateCollections, func(db *Mongo) error {
 		collection := db.client.Database(db.config.MongoTable).Collection(db.config.MongoDeviceCollection)
@@ -48,6 +60,14 @@ func init() {
 			return err
 		}
 		err = db.ensureIndex(collection, "devicenameindex", deviceNameKey, true, false)
+		if err != nil {
+			return err
+		}
+		err = db.ensureIndex(collection, "devicecreatedatindex", deviceCreatedAtKey, true, false)
+		if err != nil {
+			return err
+		}
+		err = db.ensureIndex(collection, "deviceupdatedatindex", deviceUpdatedAtKey, true, false)
 		if err != nil {
 			return err
 		}
@@ -75,6 +95,10 @@ func (this *Mongo) ListDevices(userId string, o persistence.ListOptions) (result
 		sortby = deviceLocalIdKey
 	case "name":
 		sortby = deviceNameKey
+	case "created_at":
+		sortby = deviceCreatedAtKey
+	case "updated_at":
+		sortby = deviceUpdatedAtKey
 	}
 	direction := int32(1)
 	if len(parts) > 1 && parts[1] == "desc" {

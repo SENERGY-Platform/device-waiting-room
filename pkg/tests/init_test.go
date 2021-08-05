@@ -185,6 +185,47 @@ func listDevices(config configuration.Config, userId string, expected model.Devi
 	}
 }
 
+func listDevicesWithSort(config configuration.Config, userId string, sort string, expected model.DeviceList) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, err := createToken(userId)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req, err := http.NewRequest("GET", "http://localhost:"+config.ApiPort+"/devices?limit=10&sort="+url.QueryEscape(sort), nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		req.WithContext(ctx)
+		req.Header.Set("Authorization", token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.StatusCode, string(b))
+			return
+		}
+		actual := model.DeviceList{}
+		err = json.NewDecoder(resp.Body).Decode(&actual)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		actual = normalizeDeviceList(actual)
+		expected = normalizeDeviceList(expected)
+		if !reflect.DeepEqual(actual, expected) {
+			t.Error(actual, expected)
+			return
+		}
+	}
+}
+
 func searchDevices(config configuration.Config, userId string, searchText string, expected model.DeviceList) func(t *testing.T) {
 	return func(t *testing.T) {
 		token, err := createToken(userId)
