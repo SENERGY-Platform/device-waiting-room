@@ -84,6 +84,7 @@ func (this *Mongo) deviceCollection() *mongo.Collection {
 }
 
 func (this *Mongo) ListDevices(userId string, o persistence.ListOptions) (result []model.Device, total int64, err error, errCode int) {
+	result = []model.Device{}
 	opt := options.Find()
 	opt.SetLimit(int64(o.Limit))
 	opt.SetSkip(int64(o.Offset))

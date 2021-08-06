@@ -142,6 +142,27 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		return
 	})
 
+	router.DELETE(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		ids := []string{}
+		err = json.NewDecoder(request.Body).Decode(&ids)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.DeleteMultipleDevices(token, ids)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		return
+	})
+
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		device := model.Device{}

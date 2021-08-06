@@ -109,6 +109,16 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 	return this.db.RemoveDevice(localId)
 }
 
+func (this *Controller) UseMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
+	for _, id := range ids {
+		err, errCode = this.UseDevice(token, id)
+		if err != nil {
+			return err, errCode
+		}
+	}
+	return nil, http.StatusOK
+}
+
 func (this *Controller) DeleteDevice(token auth.Token, localId string) (err error, errCode int) {
 	var device model.Device
 	device, err, errCode = this.db.ReadDevice(localId)
@@ -119,6 +129,16 @@ func (this *Controller) DeleteDevice(token auth.Token, localId string) (err erro
 		return errors.New("access denied"), http.StatusForbidden
 	}
 	return this.db.RemoveDevice(localId)
+}
+
+func (this *Controller) DeleteMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
+	for _, id := range ids {
+		err, errCode = this.DeleteDevice(token, id)
+		if err != nil {
+			return err, errCode
+		}
+	}
+	return nil, http.StatusOK
 }
 
 func (this *Controller) CreateInDeviceManager(token string, device device_manager_model.Device) (err error, errCode int) {

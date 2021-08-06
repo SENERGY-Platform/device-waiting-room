@@ -17,6 +17,7 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/julienschmidt/httprouter"
@@ -38,6 +39,27 @@ func UseDevicesEndpoints(config configuration.Config, control Controller, router
 			return
 		}
 		err, errCode := control.UseDevice(token, localId)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		return
+	})
+
+	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		ids := []string{}
+		err = json.NewDecoder(request.Body).Decode(&ids)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.UseMultipleDevices(token, ids)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
