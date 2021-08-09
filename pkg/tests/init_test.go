@@ -465,6 +465,62 @@ func useDevice(config configuration.Config, userId string, deviceId string) func
 	}
 }
 
+func hideDevice(config configuration.Config, userId string, deviceId string) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, err := createToken(userId)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req, err := http.NewRequest("PUT", "http://localhost:"+config.ApiPort+"/hidden/devices/"+deviceId, nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		req.WithContext(ctx)
+		req.Header.Set("Authorization", token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.StatusCode, string(b))
+			return
+		}
+	}
+}
+
+func showDevice(config configuration.Config, userId string, deviceId string) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, err := createToken(userId)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		req, err := http.NewRequest("PUT", "http://localhost:"+config.ApiPort+"/shown/devices/"+deviceId, nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		req.WithContext(ctx)
+		req.Header.Set("Authorization", token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.StatusCode, string(b))
+			return
+		}
+	}
+}
+
 func createToken(userId string) (token string, err error) {
 	claims := KeycloakClaims{
 		RealmAccess{Roles: []string{}},

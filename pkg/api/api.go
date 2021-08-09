@@ -74,4 +74,8 @@ type Controller interface {
 	DeleteDevice(token auth.Token, id string) (err error, errCode int)
 	UseMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
 	DeleteMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
+	HideDevice(token auth.Token, id string) (err error, errCode int)
+	HideMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
+	ShowDevice(token auth.Token, id string) (err error, errCode int)
+	ShowMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
 }

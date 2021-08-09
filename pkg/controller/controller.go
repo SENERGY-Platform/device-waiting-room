@@ -169,3 +169,49 @@ func (this *Controller) CreateInDeviceManager(token string, device device_manage
 	}
 	return nil, resp.StatusCode
 }
+
+func (this *Controller) HideDevice(token auth.Token, localId string) (err error, errCode int) {
+	var device model.Device
+	device, err, errCode = this.db.ReadDevice(localId)
+	if err != nil {
+		return err, errCode
+	}
+	if device.UserId != token.GetUserId() {
+		return errors.New("access denied"), http.StatusForbidden
+	}
+	device.Hidden = true
+	return this.db.SetDevice(device)
+}
+
+func (this *Controller) HideMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
+	for _, id := range ids {
+		err, errCode = this.HideDevice(token, id)
+		if err != nil {
+			return err, errCode
+		}
+	}
+	return nil, http.StatusOK
+}
+
+func (this *Controller) ShowDevice(token auth.Token, localId string) (err error, errCode int) {
+	var device model.Device
+	device, err, errCode = this.db.ReadDevice(localId)
+	if err != nil {
+		return err, errCode
+	}
+	if device.UserId != token.GetUserId() {
+		return errors.New("access denied"), http.StatusForbidden
+	}
+	device.Hidden = false
+	return this.db.SetDevice(device)
+}
+
+func (this *Controller) ShowMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
+	for _, id := range ids {
+		err, errCode = this.ShowDevice(token, id)
+		if err != nil {
+			return err, errCode
+		}
+	}
+	return nil, http.StatusOK
+}
