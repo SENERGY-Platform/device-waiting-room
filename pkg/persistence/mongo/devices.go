@@ -19,12 +19,16 @@ const deviceHiddenFieldName = "Hidden"
 const deviceCreatedAtFieldName = "CreatedAt"
 const deviceUpdatedAtFieldName = "LastUpdate"
 
+const deviceSearchTokensFieldName = "SearchTokens"
+
 var deviceLocalIdKey string
 var deviceNameKey string
 var deviceUserIdKey string
 var deviceHiddenKey string
 var deviceCreatedAtKey string
 var deviceUpdatedAtKey string
+
+var deviceSearchTokensKey string
 
 func init() {
 	var err error
@@ -52,6 +56,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	deviceSearchTokensKey, err = getBsonFieldPath(model.Device{}, deviceSearchTokensFieldName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	CreateCollections = append(CreateCollections, func(db *Mongo) error {
 		collection := db.client.Database(db.config.MongoTable).Collection(db.config.MongoDeviceCollection)
@@ -71,7 +79,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		err = db.ensureTextIndex(collection, "devicesearchindex", deviceNameKey, deviceLocalIdKey)
+		err = db.ensureTextIndex(collection, "devicesearchindex", deviceSearchTokensKey)
 		if err != nil {
 			return err
 		}
@@ -163,6 +171,7 @@ func (this *Mongo) ReadDevice(localId string) (result model.Device, err error, e
 }
 
 func (this *Mongo) SetDevice(device model.Device) (error, int) {
+	device.SearchTokens = this.getSearchTokens(device)
 	ctx, _ := getTimeoutContext()
 	_, err := this.deviceCollection().ReplaceOne(
 		ctx,

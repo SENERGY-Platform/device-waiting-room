@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -87,6 +88,20 @@ func (this *Mongo) ensureTextIndex(collection *mongo.Collection, indexname strin
 func (this *Mongo) Disconnect() {
 	timeout, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	log.Println(this.client.Disconnect(timeout))
+}
+
+func (this *Mongo) getSearchTokens(device model.Device) string {
+	return strings.Join([]string{
+		device.LocalId,
+		device.Name,
+		strings.NewReplacer(
+			"_", " ",
+			"-", " ",
+			".", " ",
+			":", " ",
+			"/", " ").
+			Replace(device.Name),
+	}, " ")
 }
 
 func getBsonFieldName(obj interface{}, fieldName string) (bsonName string, err error) {

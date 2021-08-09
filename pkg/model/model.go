@@ -7,10 +7,11 @@ import (
 
 type Device struct {
 	model.Device
-	UserId     string    `json:"user_id"`
-	Hidden     bool      `json:"hidden"`
-	CreatedAt  time.Time `json:"created_at"`
-	LastUpdate time.Time `json:"updated_at"`
+	UserId       string    `json:"user_id"`
+	Hidden       bool      `json:"hidden"`
+	CreatedAt    time.Time `json:"created_at"`
+	LastUpdate   time.Time `json:"updated_at"`
+	SearchTokens string    `json:"-"` //searchable text for internal use
 }
 
 type DeviceList struct {
