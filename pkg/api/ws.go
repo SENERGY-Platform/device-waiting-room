@@ -15,7 +15,11 @@ func init() {
 func WsEndpoints(config configuration.Config, control Controller, router *httprouter.Router) {
 	resource := "/events"
 
-	var upgrader = websocket.Upgrader{}
+	var upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 
 	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		c, err := upgrader.Upgrade(writer, request, nil)
