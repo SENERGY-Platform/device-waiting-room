@@ -63,7 +63,7 @@ func (this *Token) Valid() error {
 
 func parse(token string) (claims Token, err error) {
 	orig := token
-	if strings.HasPrefix(token, "Bearer ") {
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
 		token = token[7:]
 	}
 	_, _, err = new(jwt.Parser).ParseUnverified(token, &claims)
@@ -75,7 +75,7 @@ func parse(token string) (claims Token, err error) {
 
 func ParseAndValidateToken(token string, pubRsaKey string) (claims Token, err error) {
 	orig := token
-	if strings.HasPrefix(token, "Bearer ") {
+	if strings.HasPrefix(strings.ToLower(token), "bearer ") {
 		token = token[7:]
 	}
 	_, err = jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
