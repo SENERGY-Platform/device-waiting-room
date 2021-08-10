@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	"github.com/gorilla/websocket"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -78,4 +79,5 @@ type Controller interface {
 	HideMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
 	ShowDevice(token auth.Token, id string) (err error, errCode int)
 	ShowMultipleDevices(token auth.Token, ids []string) (err error, errCode int)
+	HandleWs(conn *websocket.Conn)
 }

@@ -6,5 +6,6 @@
     "mongo_repl_set": true,
     "debug": false,
     "device_manager_url": "http://device-manager:8080",
-    "delete_after_use_wait_duration": "10s"
+    "delete_after_use_wait_duration": "10s",
+    "jwt_pub_rsa_key": ""
 }

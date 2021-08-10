@@ -22,3 +22,20 @@ type DeviceList struct {
 	Search string   `json:"search,omitempty"`
 	Result []Device `json:"result"`
 }
+
+type EventMessage struct {
+	Type    string `json:"type"`
+	Payload string `json:"payload,omitempty"`
+}
+
+const WsAuthType = "auth"
+const WsAuthRequestType = "auth_request"
+const WsAuthOkType = "auth_ok"
+const WsErrorType = "error"
+const WsUpdateSetType = "update_set"
+const WsUpdateDeleteType = "update_delete"
+const WsUpdateUseType = "update_use"
+
+const EventUpdateSetType = WsUpdateSetType
+const EventUpdateDeleteType = WsUpdateDeleteType
+const EventUpdateUseType = WsUpdateUseType

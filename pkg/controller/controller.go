@@ -12,12 +12,15 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"sync"
 	"time"
 )
 
 type Controller struct {
-	config configuration.Config
-	db     Persistence
+	config        configuration.Config
+	db            Persistence
+	subscriptions []Subscription
+	subMux        sync.Mutex
 }
 
 func New(config configuration.Config, db Persistence) *Controller {
@@ -70,6 +73,9 @@ func (this *Controller) SetDevice(token auth.Token, device model.Device) (result
 		device.CreatedAt = old.CreatedAt
 	}
 	err, errCode = this.db.SetDevice(device)
+	if err == nil {
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+	}
 	return device, err, errCode
 }
 
@@ -106,7 +112,11 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 			debug.PrintStack()
 		}
 	}()
-	return this.db.RemoveDevice(localId)
+	err, errCode = this.db.RemoveDevice(localId)
+	if err == nil {
+		this.Trigger(token.GetUserId(), model.EventUpdateUseType, device.LocalId)
+	}
+	return err, errCode
 }
 
 func (this *Controller) UseMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
@@ -128,7 +138,11 @@ func (this *Controller) DeleteDevice(token auth.Token, localId string) (err erro
 	if device.UserId != token.GetUserId() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	return this.db.RemoveDevice(localId)
+	err, errCode = this.db.RemoveDevice(localId)
+	if err == nil {
+		this.Trigger(token.GetUserId(), model.EventUpdateDeleteType, device.LocalId)
+	}
+	return err, errCode
 }
 
 func (this *Controller) DeleteMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
@@ -180,7 +194,11 @@ func (this *Controller) HideDevice(token auth.Token, localId string) (err error,
 		return errors.New("access denied"), http.StatusForbidden
 	}
 	device.Hidden = true
-	return this.db.SetDevice(device)
+	err, errCode = this.db.SetDevice(device)
+	if err == nil {
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+	}
+	return err, errCode
 }
 
 func (this *Controller) HideMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {
@@ -203,7 +221,11 @@ func (this *Controller) ShowDevice(token auth.Token, localId string) (err error,
 		return errors.New("access denied"), http.StatusForbidden
 	}
 	device.Hidden = false
-	return this.db.SetDevice(device)
+	err, errCode = this.db.SetDevice(device)
+	if err == nil {
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+	}
+	return err, errCode
 }
 
 func (this *Controller) ShowMultipleDevices(token auth.Token, ids []string) (err error, errCode int) {

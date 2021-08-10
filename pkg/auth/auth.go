@@ -17,11 +17,19 @@
 package auth
 
 import (
+	"crypto/x509"
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"net/http"
 	"strings"
+	"time"
 )
+
+var TimeNow = func() time.Time {
+	return time.Now()
+}
 
 func GetAuthToken(req *http.Request) string {
 	return req.Header.Get("Authorization")
@@ -35,6 +43,7 @@ type Token struct {
 	Token       string              `json:"-"`
 	Sub         string              `json:"sub,omitempty"`
 	RealmAccess map[string][]string `json:"realm_access,omitempty"`
+	Expiration  int64               `json:"exp"`
 }
 
 func (this *Token) String() string {
@@ -64,12 +73,42 @@ func parse(token string) (claims Token, err error) {
 	return
 }
 
+func ParseAndValidateToken(token string, pubRsaKey string) (claims Token, err error) {
+	orig := token
+	if strings.HasPrefix(token, "Bearer ") {
+		token = token[7:]
+	}
+	_, err = jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		//decode key base64 string to []byte
+		b, err := base64.StdEncoding.DecodeString(pubRsaKey)
+		if err != nil {
+			return nil, err
+		}
+		//parse []byte key to go struct key (use most common encoding)
+		return x509.ParsePKIXPublicKey(b)
+	})
+	if err == nil {
+		claims.Token = orig
+	}
+	return
+}
+
 func (this *Token) IsAdmin() bool {
 	return contains(this.RealmAccess["roles"], "admin")
 }
 
 func (this *Token) GetUserId() string {
 	return this.Sub
+}
+
+func (this *Token) IsExpired() bool {
+	expiresIn := time.Unix(this.Expiration, 0).Sub(TimeNow())
+	return expiresIn <= 0
 }
 
 func contains(s []string, e string) bool {
