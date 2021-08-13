@@ -21,6 +21,7 @@ type Config struct {
 	DeviceManagerUrl           string `json:"device_manager_url"`
 	DeleteAfterUseWaitDuration string `json:"delete_after_use_wait_duration"`
 	JwtPubRsaKey               string `json:"jwt_pub_rsa_key"` //without -----BEGIN PUBLIC KEY-----
+	WsPinkPeriod               string `json:"ws_pink_period"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

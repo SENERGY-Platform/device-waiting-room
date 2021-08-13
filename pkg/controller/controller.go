@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
@@ -9,6 +10,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -236,4 +238,27 @@ func (this *Controller) ShowMultipleDevices(token auth.Token, ids []string) (err
 		}
 	}
 	return nil, http.StatusOK
+}
+
+func (this *Controller) startPing(ctx context.Context, conn *websocket.Conn) (err error) {
+	pingPeriod, err := time.ParseDuration(this.config.WsPinkPeriod)
+	if err != nil {
+		return err
+	}
+	go func() {
+		ticker := time.NewTicker(pingPeriod)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				err := conn.WriteMessage(websocket.PingMessage, nil)
+				if err != nil {
+					log.Println("ERROR: sending ws ping:", err)
+					return
+				}
+			}
+		}
+	}()
+	return nil
 }

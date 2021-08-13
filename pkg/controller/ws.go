@@ -6,13 +6,21 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/gorilla/websocket"
 	"log"
+	"runtime/debug"
 )
 
 func (this *Controller) HandleWs(conn *websocket.Conn) {
+	defer conn.Close()
 	connId := conn.RemoteAddr().String()
 	defer this.Unsubscribe(connId)
 	ctx, close := context.WithCancel(context.Background())
-	defer conn.Close()
+	err := this.startPing(ctx, conn)
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		close()
+		return
+	}
 	go func() {
 		defer close()
 		for {
