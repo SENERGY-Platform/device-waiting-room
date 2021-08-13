@@ -241,7 +241,7 @@ func (this *Controller) ShowMultipleDevices(token auth.Token, ids []string) (err
 }
 
 func (this *Controller) startPing(ctx context.Context, conn *websocket.Conn) (err error) {
-	pingPeriod, err := time.ParseDuration(this.config.WsPinkPeriod)
+	pingPeriod, err := time.ParseDuration(this.config.WsPingPeriod)
 	if err != nil {
 		return err
 	}
