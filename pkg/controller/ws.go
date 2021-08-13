@@ -26,6 +26,9 @@ func (this *Controller) HandleWs(conn *websocket.Conn) {
 		for {
 			msg := model.EventMessage{}
 			err := conn.ReadJSON(&msg)
+			if err != nil && websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived, websocket.CloseGoingAway) {
+				return
+			}
 			if err != nil {
 				log.Println("ERROR: ws read:", err)
 				return
