@@ -193,4 +193,37 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		return
 	})
 
+	router.PUT(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		devices := []model.Device{}
+		err := json.NewDecoder(request.Body).Decode(&devices)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		result := []model.Device{}
+		for _, device := range devices {
+			if device.LocalId == "" {
+				http.Error(writer, "empty local_id in device", http.StatusBadRequest)
+				return
+			}
+			temp, err, errCode := control.SetDevice(token, device)
+			if err != nil {
+				http.Error(writer, err.Error(), errCode)
+				return
+			}
+			result = append(result, temp)
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+
 }
