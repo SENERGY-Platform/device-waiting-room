@@ -14,7 +14,6 @@ import (
 type Config struct {
 	ApiPort                    string `json:"api_port"`
 	MongoUrl                   string `json:"mongo_url"`
-	MongoReplSet               bool   `json:"mongo_repl_set"` //set true if mongodb is configured as replication set or mongos and is able to handle transactions
 	MongoTable                 string `json:"mongo_table"`
 	MongoDeviceCollection      string `json:"mongo_device_collection"`
 	Debug                      bool   `json:"debug"`
