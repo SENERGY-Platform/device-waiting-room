@@ -7,17 +7,12 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
 	"github.com/golang-jwt/jwt"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"io"
-	"log"
 	"net"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -26,65 +21,6 @@ import (
 	"testing"
 	"time"
 )
-
-func DeviceManagerMock(ctx context.Context, wg *sync.WaitGroup, onCall func(path string, body []byte, err error) (resp []byte, code int)) (url string) {
-	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		body, err := io.ReadAll(request.Body)
-		resp, code := onCall(request.URL.Path, body, err)
-		if code == http.StatusOK {
-			if resp != nil {
-				writer.Write(resp)
-				return
-			} else {
-				writer.WriteHeader(code)
-				return
-			}
-		}
-		if resp != nil {
-			http.Error(writer, string(resp), code)
-			return
-		} else {
-			writer.WriteHeader(code)
-			return
-		}
-	}))
-	wg.Add(1)
-	go func() {
-		<-ctx.Done()
-		server.Close()
-		wg.Done()
-	}()
-	return server.URL
-}
-
-func MongoContainer(ctx context.Context, wg *sync.WaitGroup) (hostPort string, ipAddress string, err error) {
-	pool, err := dockertest.NewPool("")
-	container, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "mongo",
-		Tag:        "4.1.11",
-	}, func(config *docker.HostConfig) {
-		config.Tmpfs = map[string]string{"/data/db": "rw"}
-	})
-	if err != nil {
-		return "", "", err
-	}
-	wg.Add(1)
-	go func() {
-		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
-		wg.Done()
-	}()
-	hostPort = container.GetPort("27017/tcp")
-	err = pool.Retry(func() error {
-		log.Println("try mongodb connection...")
-		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:"+hostPort))
-		err = client.Ping(ctx, readpref.Primary())
-		return err
-	})
-	return hostPort, container.Container.NetworkSettings.IPAddress, err
-}
 
 func getFreePort() (int, error) {
 	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
@@ -111,11 +47,11 @@ func TestInit(t *testing.T) {
 		t.Fatal("ERROR: unable to load config", err)
 	}
 
-	config.DeviceManagerUrl = DeviceManagerMock(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
+	config.DeviceManagerUrl = mocks.DeviceManager(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := MongoContainer(ctx, wg)
+	mongoPort, _, err := docker.MongoDB(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return

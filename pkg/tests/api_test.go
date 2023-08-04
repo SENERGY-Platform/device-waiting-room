@@ -6,6 +6,8 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
 	"net/http"
 	"strconv"
 	"sync"
@@ -25,11 +27,11 @@ func TestDevices(t *testing.T) {
 	}
 	config.DeleteAfterUseWaitDuration = "1s"
 
-	config.DeviceManagerUrl = DeviceManagerMock(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
+	config.DeviceManagerUrl = mocks.DeviceManager(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := MongoContainer(ctx, wg)
+	mongoPort, _, err := docker.MongoDB(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return

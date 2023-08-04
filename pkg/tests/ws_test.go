@@ -7,6 +7,8 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
 	"github.com/gorilla/websocket"
 	"reflect"
 	"strconv"
@@ -30,11 +32,11 @@ func TestWebSocket(t *testing.T) {
 		t.Fatal("ERROR: unable to load config", err)
 	}
 
-	config.DeviceManagerUrl = DeviceManagerMock(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
+	config.DeviceManagerUrl = mocks.DeviceManager(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := MongoContainer(ctx, wg)
+	mongoPort, _, err := docker.MongoDB(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
