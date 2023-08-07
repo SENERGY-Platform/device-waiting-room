@@ -9,7 +9,6 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.9
 	github.com/testcontainers/testcontainers-go v0.22.0
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.22.0
 	go.mongodb.org/mongo-driver v1.12.1
 )
 
