@@ -12,31 +12,42 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 )
 
 type Mongo struct {
 	config configuration.Config
-	client *mongo.Client
+	db     *mongo.Client
 }
 
 var CreateCollections = []func(db *Mongo) error{}
 
-func New(conf configuration.Config) (*Mongo, error) {
-	ctx, _ := getTimeoutContext()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.MongoUrl))
+func New(ctx context.Context, wg *sync.WaitGroup, conf configuration.Config) (*Mongo, error) {
+	timeout, _ := getTimeoutContext()
+	db, err := mongo.Connect(timeout, options.Client().ApplyURI(conf.MongoUrl))
 	if err != nil {
 		return nil, err
 	}
-	db := &Mongo{config: conf, client: client}
+	client := &Mongo{config: conf, db: db}
 	for _, creators := range CreateCollections {
-		err = creators(db)
+		err = creators(client)
 		if err != nil {
-			client.Disconnect(context.Background())
+			client.disconnect()
 			return nil, err
 		}
 	}
-	return db, nil
+	if wg != nil {
+		wg.Add(1)
+	}
+	go func() {
+		<-ctx.Done()
+		client.disconnect()
+		if wg != nil {
+			wg.Done()
+		}
+	}()
+	return client, nil
 }
 
 func (this *Mongo) ensureIndex(collection *mongo.Collection, indexname string, indexKey string, asc bool, unique bool) error {
@@ -85,9 +96,9 @@ func (this *Mongo) ensureTextIndex(collection *mongo.Collection, indexname strin
 	return err
 }
 
-func (this *Mongo) Disconnect() {
+func (this *Mongo) disconnect() {
 	timeout, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	log.Println(this.client.Disconnect(timeout))
+	log.Println("disconnect mongo:", this.db.Disconnect(timeout))
 }
 
 func (this *Mongo) getSearchTokens(device model.Device) string {

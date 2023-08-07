@@ -21,7 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	options "github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -41,12 +41,12 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 			http.Error(writer, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		options := persistence.ListOptions{}
+		o := options.List{}
 		limitStr := request.URL.Query().Get("limit")
 		if limitStr == "" {
 			limitStr = "100"
 		}
-		options.Limit, err = strconv.Atoi(limitStr)
+		o.Limit, err = strconv.Atoi(limitStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
@@ -55,29 +55,29 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		if offsetStr == "" {
 			offsetStr = "0"
 		}
-		options.Offset, err = strconv.Atoi(offsetStr)
+		o.Offset, err = strconv.Atoi(offsetStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		options.Sort = request.URL.Query().Get("sort")
-		if options.Sort == "" {
-			options.Sort = "local_id"
+		o.Sort = request.URL.Query().Get("sort")
+		if o.Sort == "" {
+			o.Sort = "local_id"
 		}
 
 		showHiddenStr := request.URL.Query().Get("show_hidden")
 		if showHiddenStr == "" {
 			showHiddenStr = "false"
 		}
-		options.ShowHidden, err = strconv.ParseBool(showHiddenStr)
+		o.ShowHidden, err = strconv.ParseBool(showHiddenStr)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		options.Search = request.URL.Query().Get("search")
+		o.Search = request.URL.Query().Get("search")
 
-		result, err, errCode := control.ListDevices(token, options)
+		result, err, errCode := control.ListDevices(token, o)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

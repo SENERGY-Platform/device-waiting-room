@@ -2,12 +2,11 @@ package tests
 
 import (
 	"context"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
+	device_manager_model "github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"strconv"
 	"sync"
@@ -16,6 +15,15 @@ import (
 )
 
 func TestDevices(t *testing.T) {
+	t.Run("mongo", func(t *testing.T) {
+		testDevices(t, "mongo")
+	})
+	t.Run("postgres", func(t *testing.T) {
+		testDevices(t, "postgres")
+	})
+}
+
+func testDevices(t *testing.T, dbImpl string) {
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -27,16 +35,15 @@ func TestDevices(t *testing.T) {
 	}
 	config.DeleteAfterUseWaitDuration = "1s"
 
-	config.DeviceManagerUrl = mocks.DeviceManager(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
-		return nil, 200
-	})
-
-	mongoPort, _, err := docker.MongoDB(ctx, wg)
+	config, err = deployTestPersistenceContainer(dbImpl, config, ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	config.MongoUrl = "mongodb://localhost:" + mongoPort
+
+	config.DeviceManagerUrl = mocks.DeviceManager(ctx, wg, func(path string, body []byte, err error) (resp []byte, code int) {
+		return nil, 200
+	})
 
 	freePort, err := getFreePort()
 	if err != nil {

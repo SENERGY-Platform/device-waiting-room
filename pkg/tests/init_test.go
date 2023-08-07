@@ -9,6 +9,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/golang-jwt/jwt"
 	"io"
 	"net"
@@ -37,6 +38,35 @@ func getFreePort() (int, error) {
 }
 
 func TestInit(t *testing.T) {
+	t.Run("mongo", func(t *testing.T) {
+		testInit(t, "mongo")
+	})
+	t.Run("postgres", func(t *testing.T) {
+		testInit(t, "postgres")
+	})
+}
+
+func deployTestPersistenceContainer(dbImpl string, config configuration.Config, ctx context.Context, wg *sync.WaitGroup) (configuration.Config, error) {
+	config.DbImpl = dbImpl
+	switch dbImpl {
+	case configuration.Mongo:
+		mongoPort, _, err := docker.MongoDB(ctx, wg)
+		if err != nil {
+			return config, err
+		}
+		config.MongoUrl = "mongodb://localhost:" + mongoPort
+	case configuration.Postgres:
+		connstr, err := docker.Postgres(ctx, wg, "test")
+		if err != nil {
+			return config, err
+		}
+		config.PostgresConnStr = connstr
+	default:
+	}
+	return config, nil
+}
+
+func testInit(t *testing.T, dbImpl string) {
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -51,12 +81,11 @@ func TestInit(t *testing.T) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := docker.MongoDB(ctx, wg)
+	config, err = deployTestPersistenceContainer(dbImpl, config, ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	config.MongoUrl = "mongodb://localhost:" + mongoPort
 
 	freePort, err := getFreePort()
 	if err != nil {
@@ -312,7 +341,7 @@ func readDevice(config configuration.Config, userId string, deviceId string, exp
 		actual = normalizeDevice(actual)
 		expected = normalizeDevice(expected)
 		if !reflect.DeepEqual(actual, expected) {
-			t.Error(actual, expected)
+			t.Errorf("\n%#v\n%#v\n", actual, expected)
 			return
 		}
 	}
@@ -489,6 +518,9 @@ type RealmAccess struct {
 func normalizeDevice(device model.Device) model.Device {
 	device.CreatedAt = time.Time{}
 	device.LastUpdate = time.Time{}
+	if device.Attributes == nil {
+		device.Attributes = []models.Attribute{}
+	}
 	return device
 }
 

@@ -1,8 +1,14 @@
 {
     "api_port": "8080",
+
+    "db_impl": "mongo",
+
     "mongo_url": "mongodb://localhost:27017",
     "mongo_table": "devicerepository",
     "mongo_device_collection": "device",
+
+    "postgres_conn_str": "",
+
     "debug": false,
     "device_manager_url": "http://device-manager:8080",
     "delete_after_use_wait_duration": "10s",

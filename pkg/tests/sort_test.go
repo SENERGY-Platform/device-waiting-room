@@ -2,18 +2,26 @@ package tests
 
 import (
 	"context"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
+	device_manager_model "github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
 )
 
 func TestSortByCreatedAt(t *testing.T) {
+	t.Run("mongo", func(t *testing.T) {
+		testSortByCreatedAt(t, "mongo")
+	})
+	t.Run("postgres", func(t *testing.T) {
+		testSortByCreatedAt(t, "postgres")
+	})
+}
+
+func testSortByCreatedAt(t *testing.T, dbImpl string) {
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -28,12 +36,11 @@ func TestSortByCreatedAt(t *testing.T) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := docker.MongoDB(ctx, wg)
+	config, err = deployTestPersistenceContainer(dbImpl, config, ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	config.MongoUrl = "mongodb://localhost:" + mongoPort
 
 	freePort, err := getFreePort()
 	if err != nil {
@@ -158,6 +165,15 @@ func TestSortByCreatedAt(t *testing.T) {
 }
 
 func TestSortByUpdatedAt(t *testing.T) {
+	t.Run("mongo", func(t *testing.T) {
+		testSortByUpdatedAt(t, "mongo")
+	})
+	t.Run("postgres", func(t *testing.T) {
+		testSortByUpdatedAt(t, "postgres")
+	})
+}
+
+func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -172,12 +188,11 @@ func TestSortByUpdatedAt(t *testing.T) {
 		return nil, 200
 	})
 
-	mongoPort, _, err := docker.MongoDB(ctx, wg)
+	config, err = deployTestPersistenceContainer(dbImpl, config, ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	config.MongoUrl = "mongodb://localhost:" + mongoPort
 
 	freePort, err := getFreePort()
 	if err != nil {

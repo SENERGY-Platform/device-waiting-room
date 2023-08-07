@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
+	device_manager_model "github.com/SENERGY-Platform/models/go/models"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -32,14 +33,9 @@ func New(config configuration.Config, db Persistence) *Controller {
 	}
 }
 
-type Persistence interface {
-	ListDevices(userId string, options persistence.ListOptions) (result []model.Device, total int64, err error, errCode int)
-	ReadDevice(localId string) (result model.Device, err error, errCode int)
-	SetDevice(device model.Device) (error, int)
-	RemoveDevice(localId string) (error, int)
-}
+type Persistence = persistence.Persistence
 
-func (this *Controller) ListDevices(token auth.Token, options persistence.ListOptions) (result model.DeviceList, err error, errCode int) {
+func (this *Controller) ListDevices(token auth.Token, options options.List) (result model.DeviceList, err error, errCode int) {
 	result.Limit, result.Offset, result.Sort, result.Search = options.Limit, options.Offset, options.Sort, options.Search
 	result.Result, result.Total, err, errCode = this.db.ListDevices(token.GetUserId(), options)
 	return

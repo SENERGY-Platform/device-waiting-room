@@ -12,10 +12,15 @@ import (
 )
 
 type Config struct {
-	ApiPort                    string `json:"api_port"`
-	MongoUrl                   string `json:"mongo_url"`
-	MongoTable                 string `json:"mongo_table"`
-	MongoDeviceCollection      string `json:"mongo_device_collection"`
+	ApiPort string `json:"api_port"`
+	DbImpl  DbImpl `json:"db_impl"`
+
+	MongoUrl              string `json:"mongo_url"`
+	MongoTable            string `json:"mongo_table"`
+	MongoDeviceCollection string `json:"mongo_device_collection"`
+
+	PostgresConnStr string `json:"postgres_conn_str"`
+
 	Debug                      bool   `json:"debug"`
 	DeviceManagerUrl           string `json:"device_manager_url"`
 	DeleteAfterUseWaitDuration string `json:"delete_after_use_wait_duration"`
@@ -23,7 +28,12 @@ type Config struct {
 	WsPingPeriod               string `json:"ws_ping_period"`
 }
 
-//loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)
+type DbImpl = string
+
+const Mongo DbImpl = "mongo"
+const Postgres DbImpl = "postgres"
+
+// loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)
 func Load(location string) (config Config, err error) {
 	file, error := os.Open(location)
 	if error != nil {

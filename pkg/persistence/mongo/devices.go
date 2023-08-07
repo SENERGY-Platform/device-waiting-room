@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	persistencoptions "github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -61,7 +61,7 @@ func init() {
 	}
 
 	CreateCollections = append(CreateCollections, func(db *Mongo) error {
-		collection := db.client.Database(db.config.MongoTable).Collection(db.config.MongoDeviceCollection)
+		collection := db.db.Database(db.config.MongoTable).Collection(db.config.MongoDeviceCollection)
 		err = db.ensureIndex(collection, "devicelocalidindex", deviceLocalIdKey, true, false)
 		if err != nil {
 			return err
@@ -87,10 +87,10 @@ func init() {
 }
 
 func (this *Mongo) deviceCollection() *mongo.Collection {
-	return this.client.Database(this.config.MongoTable).Collection(this.config.MongoDeviceCollection)
+	return this.db.Database(this.config.MongoTable).Collection(this.config.MongoDeviceCollection)
 }
 
-func (this *Mongo) ListDevices(userId string, o persistence.ListOptions) (result []model.Device, total int64, err error, errCode int) {
+func (this *Mongo) ListDevices(userId string, o persistencoptions.List) (result []model.Device, total int64, err error, errCode int) {
 	result = []model.Device{}
 	opt := options.Find()
 	opt.SetLimit(int64(o.Limit))

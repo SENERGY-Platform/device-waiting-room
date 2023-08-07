@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	model "github.com/SENERGY-Platform/models/go/models"
 	"time"
 )
 
