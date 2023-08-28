@@ -6,7 +6,9 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
-	device_manager_model "github.com/SENERGY-Platform/models/go/models"
+
+	"github.com/SENERGY-Platform/models/go/models"
+
 	"net/http"
 	"strconv"
 	"sync"
@@ -67,10 +69,10 @@ func testDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
-			Attributes: []device_manager_model.Attribute{
+			Attributes: []models.Attribute{
 				{
 					Key:   "device/type",
 					Value: "HEAT_COST_ALLOCATOR",
@@ -80,21 +82,21 @@ func testDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user2", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_3",
 			Name:    "bar",
 		},
 	}))
 
 	t.Run("read device 2", readDevice(config, "user1", "test_2", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
@@ -103,7 +105,7 @@ func testDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("read device 3", readDevice(config, "user2", "test_3", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_3",
 			Name:    "bar",
 		},
@@ -121,10 +123,10 @@ func testDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
-					Attributes: []device_manager_model.Attribute{
+					Attributes: []models.Attribute{
 						{
 							Key:   "device/type",
 							Value: "HEAT_COST_ALLOCATOR",
@@ -135,7 +137,7 @@ func testDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -146,7 +148,7 @@ func testDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("update device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "bar",
 		},
@@ -159,7 +161,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "bar",
 				},
@@ -167,7 +169,7 @@ func testDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -186,7 +188,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -207,7 +209,7 @@ func testDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("recreate device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "bar",
 		},
@@ -220,7 +222,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "bar",
 				},

@@ -6,7 +6,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
-	device_manager_model "github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -57,21 +57,21 @@ func testSearch(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "foo",
 			Name:    "bar",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "bar",
 			Name:    "batz",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "batz",
 			Name:    "42",
 		},
@@ -85,7 +85,7 @@ func testSearch(t *testing.T, dbImpl string) {
 		Search: "foo",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 					Name:    "bar",
 				},
@@ -103,7 +103,7 @@ func testSearch(t *testing.T, dbImpl string) {
 		Search: "bar",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 					Name:    "batz",
 				},
@@ -111,7 +111,7 @@ func testSearch(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 					Name:    "bar",
 				},
@@ -129,7 +129,7 @@ func testSearch(t *testing.T, dbImpl string) {
 		Search: "batz",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 					Name:    "batz",
 				},
@@ -137,7 +137,7 @@ func testSearch(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 					Name:    "42",
 				},
@@ -193,21 +193,21 @@ func testSearch2(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "1",
 			Name:    "HEAT_COST_ALLOCATOR",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "2",
 			Name:    "HEAT",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "3",
 			Name:    "COST",
 		},
@@ -221,7 +221,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 		Search: "HEAT",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -229,7 +229,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "2",
 					Name:    "HEAT",
 				},
@@ -247,7 +247,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 		Search: "heat",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -255,7 +255,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "2",
 					Name:    "HEAT",
 				},
@@ -273,7 +273,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 		Search: "COST",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -281,7 +281,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "3",
 					Name:    "COST",
 				},
@@ -299,7 +299,7 @@ func testSearch2(t *testing.T, dbImpl string) {
 		Search: "HEAT_COST_ALLOCATOR",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},

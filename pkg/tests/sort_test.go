@@ -6,7 +6,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
-	device_manager_model "github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -56,19 +56,19 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "bar",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "batz",
 		},
 	}))
@@ -80,21 +80,21 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 		Sort:   "created_at.asc",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
@@ -110,21 +110,21 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 		Sort:   "created_at",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
@@ -140,21 +140,21 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 		Sort:   "created_at.desc",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",
@@ -208,19 +208,19 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "bar",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "batz",
 		},
 	}))
@@ -232,21 +232,21 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 		Sort:   "updated_at.asc",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
@@ -262,21 +262,21 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 		Sort:   "updated_at",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
@@ -292,21 +292,21 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 		Sort:   "updated_at.desc",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 				},
 				UserId: "user1",
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 				},
 				UserId: "user1",

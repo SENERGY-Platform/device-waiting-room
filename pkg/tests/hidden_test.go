@@ -6,7 +6,7 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
-	device_manager_model "github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -56,14 +56,14 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
@@ -76,7 +76,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -84,7 +84,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -101,7 +101,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -109,7 +109,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -120,7 +120,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 	}))
 
 	t.Run("update device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
@@ -134,7 +134,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -151,7 +151,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -159,7 +159,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -214,14 +214,14 @@ func testHideDevices(t *testing.T, dbImpl string) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
@@ -234,7 +234,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -242,7 +242,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -259,7 +259,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -267,7 +267,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -286,7 +286,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -294,7 +294,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -311,7 +311,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -319,7 +319,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -338,7 +338,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -355,7 +355,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -363,7 +363,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -382,7 +382,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -399,7 +399,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -407,7 +407,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -426,7 +426,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -434,7 +434,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
