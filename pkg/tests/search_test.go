@@ -2,10 +2,10 @@ package tests
 
 import (
 	"context"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -47,21 +47,21 @@ func TestSearch(t *testing.T) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "foo",
 			Name:    "bar",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "bar",
 			Name:    "batz",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "batz",
 			Name:    "42",
 		},
@@ -75,7 +75,7 @@ func TestSearch(t *testing.T) {
 		Search: "foo",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 					Name:    "bar",
 				},
@@ -93,7 +93,7 @@ func TestSearch(t *testing.T) {
 		Search: "bar",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 					Name:    "batz",
 				},
@@ -101,7 +101,7 @@ func TestSearch(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "foo",
 					Name:    "bar",
 				},
@@ -119,7 +119,7 @@ func TestSearch(t *testing.T) {
 		Search: "batz",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "bar",
 					Name:    "batz",
 				},
@@ -127,7 +127,7 @@ func TestSearch(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "batz",
 					Name:    "42",
 				},
@@ -174,21 +174,21 @@ func TestSearch2(t *testing.T) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "1",
 			Name:    "HEAT_COST_ALLOCATOR",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "2",
 			Name:    "HEAT",
 		},
 	}))
 
 	t.Run("create device 3", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "3",
 			Name:    "COST",
 		},
@@ -202,7 +202,7 @@ func TestSearch2(t *testing.T) {
 		Search: "HEAT",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -210,7 +210,7 @@ func TestSearch2(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "2",
 					Name:    "HEAT",
 				},
@@ -228,7 +228,7 @@ func TestSearch2(t *testing.T) {
 		Search: "heat",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -236,7 +236,7 @@ func TestSearch2(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "2",
 					Name:    "HEAT",
 				},
@@ -254,7 +254,7 @@ func TestSearch2(t *testing.T) {
 		Search: "COST",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},
@@ -262,7 +262,7 @@ func TestSearch2(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "3",
 					Name:    "COST",
 				},
@@ -280,7 +280,7 @@ func TestSearch2(t *testing.T) {
 		Search: "HEAT_COST_ALLOCATOR",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "1",
 					Name:    "HEAT_COST_ALLOCATOR",
 				},

@@ -1,12 +1,12 @@
 package model
 
 import (
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"time"
 )
 
 type Device struct {
-	model.Device
+	models.Device
 	UserId       string    `json:"user_id"`
 	Hidden       bool      `json:"hidden"`
 	CreatedAt    time.Time `json:"created_at"`

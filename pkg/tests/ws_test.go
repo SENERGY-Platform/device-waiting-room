@@ -2,11 +2,11 @@ package tests
 
 import (
 	"context"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/gorilla/websocket"
 	"reflect"
 	"strconv"
@@ -92,14 +92,14 @@ func TestWebSocket(t *testing.T) {
 	}
 
 	t.Run("create device without event", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "nope",
 		},
 	}))
 
 	userId := "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 	t.Run("create device", sendDevice(config, userId, model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_id",
 		},
 	}))
@@ -111,7 +111,7 @@ func TestWebSocket(t *testing.T) {
 	}
 
 	t.Run("update device after token expiration", sendDevice(config, userId, model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_id",
 		},
 	}))

@@ -2,10 +2,10 @@ package tests
 
 import (
 	"context"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -47,14 +47,14 @@ func TestHiddenDevices(t *testing.T) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
@@ -67,7 +67,7 @@ func TestHiddenDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -75,7 +75,7 @@ func TestHiddenDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -92,7 +92,7 @@ func TestHiddenDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -100,7 +100,7 @@ func TestHiddenDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -111,7 +111,7 @@ func TestHiddenDevices(t *testing.T) {
 	}))
 
 	t.Run("update device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
@@ -125,7 +125,7 @@ func TestHiddenDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -142,7 +142,7 @@ func TestHiddenDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -150,7 +150,7 @@ func TestHiddenDevices(t *testing.T) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -197,14 +197,14 @@ func TestHideDevices(t *testing.T) {
 	}
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
 	t.Run("create device 2", sendDevice(config, "user1", model.Device{
-		Device: device_manager_model.Device{
+		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
@@ -217,7 +217,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -225,7 +225,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -242,7 +242,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -250,7 +250,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -269,7 +269,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -277,7 +277,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -294,7 +294,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -302,7 +302,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -321,7 +321,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -338,7 +338,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -346,7 +346,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -365,7 +365,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -382,7 +382,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -390,7 +390,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: true,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},
@@ -409,7 +409,7 @@ func TestHideDevices(t *testing.T) {
 		Sort:   "local_id",
 		Result: []model.Device{
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_1",
 					Name:    "foo",
 				},
@@ -417,7 +417,7 @@ func TestHideDevices(t *testing.T) {
 				Hidden: false,
 			},
 			{
-				Device: device_manager_model.Device{
+				Device: models.Device{
 					LocalId: "test_2",
 					Name:    "bar",
 				},

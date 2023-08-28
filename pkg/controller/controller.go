@@ -5,11 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	device_manager_model "github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -157,7 +157,7 @@ func (this *Controller) DeleteMultipleDevices(token auth.Token, ids []string) (e
 	return nil, http.StatusOK
 }
 
-func (this *Controller) CreateInDeviceManager(token string, device device_manager_model.Device) (err error, errCode int) {
+func (this *Controller) CreateInDeviceManager(token string, device models.Device) (err error, errCode int) {
 	b := new(bytes.Buffer)
 	err = json.NewEncoder(b).Encode(device)
 	if err != nil {
