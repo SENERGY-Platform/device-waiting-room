@@ -18,3 +18,24 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config)
 	api.Start(ctx, wg, config, ctrl)
 	return nil
 }
+
+func Migrate(config configuration.Config, to configuration.DbImpl) (err error) {
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	source, err := persistence.New(ctx, wg, config)
+	if err != nil {
+		return err
+	}
+
+	targetConfig := config
+	targetConfig.DbImpl = to
+	target, err := persistence.New(ctx, wg, targetConfig)
+	if err != nil {
+		return err
+	}
+
+	return source.MigrateTo(target)
+}

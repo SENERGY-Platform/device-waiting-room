@@ -32,6 +32,7 @@ type Persistence interface {
 	ReadDevice(localId string) (result model.Device, err error, errCode int)
 	SetDevice(device model.Device) (error, int)
 	RemoveDevice(localId string) (error, int)
+	MigrateTo(target options.MigrationTarget) error
 }
 
 func New(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (Persistence, error) {

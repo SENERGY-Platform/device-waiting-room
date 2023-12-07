@@ -90,6 +90,25 @@ func (this *Mongo) deviceCollection() *mongo.Collection {
 	return this.db.Database(this.config.MongoTable).Collection(this.config.MongoDeviceCollection)
 }
 
+func (this *Mongo) MigrateTo(target persistencoptions.MigrationTarget) error {
+	cursor, err := this.deviceCollection().Find(nil, bson.D{})
+	if err != nil {
+		return err
+	}
+	for cursor.Next(nil) {
+		element := model.Device{}
+		err = cursor.Decode(&element)
+		if err != nil {
+			return err
+		}
+		err, _ = target.SetDevice(element)
+		if err != nil {
+			return err
+		}
+	}
+	return cursor.Err()
+}
+
 func (this *Mongo) ListDevices(userId string, o persistencoptions.List) (result []model.Device, total int64, err error, errCode int) {
 	result = []model.Device{}
 	opt := options.Find()

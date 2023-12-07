@@ -30,11 +30,20 @@ import (
 
 func main() {
 	configLocation := flag.String("config", "config.json", "configuration file")
+	migrate := flag.String("migrate", "", "migrate to given implementation and stop program (source and target database implementations must be configured)")
 	flag.Parse()
 
 	conf, err := configuration.Load(*configLocation)
 	if err != nil {
 		log.Fatal("ERROR: unable to load config", err)
+	}
+
+	if migrate != nil && *migrate != "" {
+		err = pkg.Migrate(conf, *migrate)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

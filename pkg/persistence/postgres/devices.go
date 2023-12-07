@@ -17,6 +17,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -76,6 +77,46 @@ func CreateDevicesTable(db *Postgres) error {
 	return nil
 }
 
+func getDeviceScanInfo() (selectFields string, scan func(rows *sql.Rows) (model.Device, error)) {
+	return `local_id, 
+		id, 
+		name, 
+		device_type_id, 
+		attributes, 
+		user_id, 
+		hidden, 
+		created_at, 
+		updated_at`,
+		func(rows *sql.Rows) (device model.Device, err error) {
+			attrBuf := []byte{}
+			err = rows.Scan(&device.LocalId, &device.Id, &device.Name, &device.DeviceTypeId, &attrBuf, &device.UserId, &device.Hidden, &device.CreatedAt, &device.LastUpdate)
+			if err != nil {
+				return device, err
+			}
+			err = json.Unmarshal(attrBuf, &device.Attributes)
+			return device, err
+		}
+}
+
+func (this *Postgres) MigrateTo(target options.MigrationTarget) error {
+	deviceFields, scan := getDeviceScanInfo()
+	rows, err := this.db.QueryContext(context.Background(), `SELECT `+deviceFields+` FROM devices`)
+	if err != nil {
+		return err
+	}
+	for rows.Next() {
+		element, err := scan(rows)
+		if err != nil {
+			return err
+		}
+		err, _ = target.SetDevice(element)
+		if err != nil {
+			return err
+		}
+	}
+	return rows.Err()
+}
+
 func (this *Postgres) ListDevices(userId string, options options.List) (result []model.Device, total int64, err error, errCode int) {
 	timeout := this.getTimeoutContext()
 	parts := strings.Split(options.Sort, ".")
@@ -93,30 +134,16 @@ func (this *Postgres) ListDevices(userId string, options options.List) (result [
 
 	where, args := this.getDeviceWhere(userId, options)
 
-	query := fmt.Sprintf(`SELECT 
-		local_id, 
-		id, 
-		name, 
-		device_type_id, 
-		attributes, 
-		user_id, 
-		hidden, 
-		created_at, 
-		updated_at 
-	FROM devices WHERE %v ORDER BY %v %v LIMIT %v OFFSET %v`, where, sortby, direction, options.Limit, options.Offset)
+	deviceFields, scan := getDeviceScanInfo()
+
+	query := fmt.Sprintf(`SELECT `+deviceFields+` FROM devices WHERE %v ORDER BY %v %v LIMIT %v OFFSET %v`, where, sortby, direction, options.Limit, options.Offset)
 
 	rows, err := this.db.QueryContext(timeout, query, args...)
 	if err != nil {
 		return result, total, err, http.StatusInternalServerError
 	}
 	for rows.Next() {
-		element := model.Device{}
-		attrBuf := []byte{}
-		err = rows.Scan(&element.LocalId, &element.Id, &element.Name, &element.DeviceTypeId, &attrBuf, &element.UserId, &element.Hidden, &element.CreatedAt, &element.LastUpdate)
-		if err != nil {
-			return result, total, err, http.StatusInternalServerError
-		}
-		err = json.Unmarshal(attrBuf, &element.Attributes)
+		element, err := scan(rows)
 		if err != nil {
 			return result, total, err, http.StatusInternalServerError
 		}
