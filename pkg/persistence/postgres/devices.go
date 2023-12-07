@@ -45,12 +45,34 @@ func CreateDevicesTable(db *Postgres) error {
     	user_id TEXT, 
     	hidden BOOL, 
     	created_at timestamptz,
-		updated_at timestamptz);
+    	updated_at timestamptz);
 `)
 	if err != nil {
 		log.Println("ERROR: unable to create table:", err)
 		return err
 	}
+
+	// Create trigram extension
+	_, err = db.db.ExecContext(ctx, `CREATE EXTENSION IF NOT EXISTS pg_trgm;`)
+	if err != nil {
+		log.Println("ERROR: unable to create extension:", err)
+		return err
+	}
+
+	// Create index for name
+	_, err = db.db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS devices_name_trgm_idx ON devices USING gin (name gin_trgm_ops);`)
+	if err != nil {
+		log.Println("ERROR: unable to create index:", err)
+		return err
+	}
+
+	// Create index for local_id
+	_, err = db.db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS devices_local_id_trgm_idx ON devices USING gin (local_id gin_trgm_ops);`)
+	if err != nil {
+		log.Println("ERROR: unable to create index:", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -132,7 +154,8 @@ func (this *Postgres) getDeviceWhere(userId string, options options.List) (where
 		and = append(and, "hidden = $"+strconv.Itoa(len(args)))
 	}
 	if options.Search != "" {
-		//TODO: search
+		args = append(args, "%"+options.Search+"%")
+		and = append(and, "(name ILIKE $"+strconv.Itoa(len(args))+" OR local_id ILIKE $"+strconv.Itoa(len(args))+")")
 	}
 	return strings.Join(and, " AND "), args
 }

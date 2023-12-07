@@ -17,7 +17,7 @@ func TestSearch(t *testing.T) {
 		testSearch(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
-		t.Skip("search not implemented")
+		//t.Skip("search not implemented")
 		testSearch(t, "postgres")
 	})
 }
