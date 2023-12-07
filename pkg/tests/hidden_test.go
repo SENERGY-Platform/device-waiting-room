@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestHiddenDevices(t *testing.T) {
@@ -54,6 +55,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
 		Device: models.Device{
@@ -212,6 +214,7 @@ func testHideDevices(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
 		Device: models.Device{

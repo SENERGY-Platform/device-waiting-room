@@ -99,6 +99,7 @@ func testInit(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("empty list", listDevices(config, "user1", model.DeviceList{
 		Total:  0,
@@ -226,7 +227,7 @@ func searchDevices(config configuration.Config, userId string, searchText string
 		actual = normalizeDeviceList(actual)
 		expected = normalizeDeviceList(expected)
 		if !reflect.DeepEqual(actual, expected) {
-			t.Error(actual, expected)
+			t.Errorf("\n%#v\n%#v\n", actual, expected)
 			return
 		}
 	}

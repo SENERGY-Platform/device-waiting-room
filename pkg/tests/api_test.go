@@ -59,6 +59,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("empty list", listDevices(config, "user1", model.DeviceList{
 		Total:  0,

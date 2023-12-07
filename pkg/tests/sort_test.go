@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestSortByCreatedAt(t *testing.T) {
@@ -54,6 +55,7 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
 		Device: models.Device{
@@ -206,6 +208,7 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 		t.Error(err)
 		return
 	}
+	time.Sleep(time.Second)
 
 	t.Run("create device 1", sendDevice(config, "user1", model.Device{
 		Device: models.Device{
