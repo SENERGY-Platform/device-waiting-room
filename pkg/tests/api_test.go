@@ -17,10 +17,13 @@ import (
 )
 
 func TestDevices(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testDevices(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testDevices(t, "postgres")
 	})
 }
@@ -69,7 +72,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		Result: []model.Device{},
 	}))
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
@@ -82,14 +85,14 @@ func testDevices(t *testing.T, dbImpl string) {
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user2", model.Device{
+	t.Run("create device 3", sendDevice(config, "user2", &model.Device{
 		Device: models.Device{
 			LocalId: "test_3",
 			Name:    "bar",
@@ -148,7 +151,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		},
 	}))
 
-	t.Run("update device 1", sendDevice(config, "user1", model.Device{
+	t.Run("update device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "bar",
@@ -209,7 +212,7 @@ func testDevices(t *testing.T, dbImpl string) {
 		Result: []model.Device{},
 	}))
 
-	t.Run("recreate device 1", sendDevice(config, "user1", model.Device{
+	t.Run("recreate device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "bar",

@@ -30,6 +30,7 @@ import (
 )
 
 func TestMigration(t *testing.T) {
+	t.Parallel()
 	wg := &sync.WaitGroup{}
 	defer wg.Wait()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -77,21 +78,21 @@ func TestMigration(t *testing.T) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "foo",
 			Name:    "bar",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "bar",
 			Name:    "batz",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user2", model.Device{
+	t.Run("create device 3", sendDevice(config, "user2", &model.Device{
 		Device: models.Device{
 			LocalId: "batz",
 			Name:    "42",

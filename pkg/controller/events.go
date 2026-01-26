@@ -3,21 +3,21 @@ package controller
 type Subscription struct {
 	SubId  string
 	UserId string
-	F      func(eventType string, id string)
+	F      func(eventType string, payload any)
 }
 
-func (this *Controller) Trigger(userid string, eventType string, id string) {
+func (this *Controller) Trigger(userid string, eventType string, payload any) {
 	this.subMux.Lock()
 	defer this.subMux.Unlock()
 	for _, sub := range this.subscriptions {
 		if sub.UserId == userid {
-			this.trigger(sub.F, eventType, id)
+			this.trigger(sub.F, eventType, payload)
 		}
 	}
 }
 
-func (this *Controller) trigger(f func(eventType string, id string), eventType string, id string) {
-	go f(eventType, id)
+func (this *Controller) trigger(f func(eventType string, payload any), eventType string, payload any) {
+	go f(eventType, payload)
 }
 
 func (this *Controller) Unsubscribe(subId string) {
@@ -32,7 +32,7 @@ func (this *Controller) Unsubscribe(subId string) {
 	this.subscriptions = newList
 }
 
-func (this *Controller) Subscribe(subId string, userId string, f func(eventType string, id string)) {
+func (this *Controller) Subscribe(subId string, userId string, f func(eventType string, payload any)) {
 	this.subMux.Lock()
 	defer this.subMux.Unlock()
 	this.subscriptions = append(this.subscriptions, Subscription{

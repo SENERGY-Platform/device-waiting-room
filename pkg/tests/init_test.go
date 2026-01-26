@@ -4,13 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
-	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/golang-jwt/jwt"
 	"io"
 	"net"
 	"net/http"
@@ -21,6 +14,14 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/SENERGY-Platform/device-waiting-room/pkg"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/docker"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
+	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/golang-jwt/jwt"
 )
 
 func getFreePort() (int, error) {
@@ -38,10 +39,13 @@ func getFreePort() (int, error) {
 }
 
 func TestInit(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testInit(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testInit(t, "postgres")
 	})
 }
@@ -274,7 +278,7 @@ func listHiddenDevices(config configuration.Config, userId string, expected mode
 	}
 }
 
-func sendDevice(config configuration.Config, userId string, device model.Device) func(t *testing.T) {
+func sendDevice(config configuration.Config, userId string, device *model.Device) func(t *testing.T) {
 	return func(t *testing.T) {
 		token, err := createToken(userId)
 		if err != nil {
@@ -304,6 +308,12 @@ func sendDevice(config configuration.Config, userId string, device model.Device)
 			t.Error(resp.StatusCode, string(b))
 			return
 		}
+		err = json.NewDecoder(resp.Body).Decode(device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		return
 	}
 }
 

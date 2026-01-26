@@ -25,7 +25,7 @@ type DeviceList struct {
 
 type EventMessage struct {
 	Type    string `json:"type"`
-	Payload string `json:"payload,omitempty"`
+	Payload any    `json:"payload,omitempty"`
 }
 
 const WsAuthType = "auth"

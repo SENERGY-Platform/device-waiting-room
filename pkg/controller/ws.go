@@ -65,14 +65,18 @@ func (this *Controller) wsSendAuthRequest(conn *websocket.Conn) error {
 
 func (this *Controller) handleWsAuth(connId string, close func(), conn *websocket.Conn, msg model.EventMessage) error {
 	this.Unsubscribe(connId)
-	token, err := auth.ParseAndValidateToken(msg.Payload, this.config.JwtPubRsaKey)
+	payloadStr, ok := msg.Payload.(string)
+	if !ok {
+		return this.wsSendError(conn, "payload must be string")
+	}
+	token, err := auth.ParseAndValidateToken(payloadStr, this.config.JwtPubRsaKey)
 	if err != nil {
 		return this.wsSendError(conn, err.Error())
 	}
 	if token.IsExpired() {
 		return this.wsSendError(conn, "expired auth token")
 	}
-	this.Subscribe(connId, token.GetUserId(), func(eventType string, id string) {
+	this.Subscribe(connId, token.GetUserId(), func(eventType string, payload any) {
 		if token.IsExpired() {
 			this.Unsubscribe(connId)
 			err = this.wsSendAuthRequest(conn)
@@ -84,7 +88,7 @@ func (this *Controller) handleWsAuth(connId string, close func(), conn *websocke
 		}
 		err = conn.WriteJSON(model.EventMessage{
 			Type:    eventType,
-			Payload: id,
+			Payload: payload,
 		})
 		if err != nil {
 			log.Println("ERROR: unable to send update message", err)

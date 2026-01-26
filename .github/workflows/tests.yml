@@ -5,6 +5,8 @@ on:
       - master
       - main
       - dev
+env:
+  CI: "true"
 jobs:
   test:
     runs-on: ubuntu-latest

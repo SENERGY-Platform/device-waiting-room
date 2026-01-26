@@ -2,22 +2,26 @@ package tests
 
 import (
 	"context"
+	"strconv"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
 	"github.com/SENERGY-Platform/models/go/models"
-	"strconv"
-	"sync"
-	"testing"
-	"time"
 )
 
 func TestHiddenDevices(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testHiddenDevices(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testHiddenDevices(t, "postgres")
 	})
 }
@@ -57,14 +61,14 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",
@@ -121,7 +125,7 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 		},
 	}))
 
-	t.Run("update device 1", sendDevice(config, "user1", model.Device{
+	t.Run("update device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
@@ -173,10 +177,13 @@ func testHiddenDevices(t *testing.T, dbImpl string) {
 }
 
 func TestHideDevices(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testHideDevices(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testHideDevices(t, "postgres")
 	})
 }
@@ -216,14 +223,14 @@ func testHideDevices(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_1",
 			Name:    "foo",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "test_2",
 			Name:    "bar",

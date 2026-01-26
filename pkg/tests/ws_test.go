@@ -2,6 +2,13 @@ package tests
 
 import (
 	"context"
+	"encoding/json"
+	"reflect"
+	"strconv"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
@@ -9,18 +16,16 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/tests/mocks"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/gorilla/websocket"
-	"reflect"
-	"strconv"
-	"sync"
-	"testing"
-	"time"
 )
 
 func TestWebSocket(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testWebSocket(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testWebSocket(t, "postgres")
 	})
 }
@@ -100,18 +105,20 @@ func testWebSocket(t *testing.T, dbImpl string) {
 		return
 	}
 
-	t.Run("create device without event", sendDevice(config, "user1", model.Device{
+	t.Run("create device without event", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "nope",
 		},
 	}))
 
 	userId := "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
-	t.Run("create device", sendDevice(config, userId, model.Device{
+	device := model.Device{
 		Device: models.Device{
 			LocalId: "test_id",
 		},
-	}))
+	}
+
+	t.Run("create device", sendDevice(config, userId, &device))
 
 	time.Sleep(1 * time.Second)
 
@@ -119,7 +126,7 @@ func testWebSocket(t *testing.T, dbImpl string) {
 		return time.Now().Add(10 * time.Hour)
 	}
 
-	t.Run("update device after token expiration", sendDevice(config, userId, model.Device{
+	t.Run("update device after token expiration", sendDevice(config, userId, &model.Device{
 		Device: models.Device{
 			LocalId: "test_id",
 		},
@@ -143,11 +150,32 @@ func testWebSocket(t *testing.T, dbImpl string) {
 		return
 	}
 
-	if !reflect.DeepEqual(messages[1], model.EventMessage{
-		Type:    model.WsUpdateSetType,
-		Payload: "test_id",
-	}) {
-		t.Error(messages[0])
+	if messages[1].Type != model.WsUpdateSetType {
+		t.Error(messages[1])
+		t.Errorf("expected type %s", model.WsUpdateSetType)
+	}
+	payloadBytes, err := json.Marshal(messages[1].Payload)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	var deviceFromMessage model.Device
+	err = json.Unmarshal(payloadBytes, &deviceFromMessage)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if !device.CreatedAt.Equal(deviceFromMessage.CreatedAt) || !device.LastUpdate.Equal(deviceFromMessage.LastUpdate) {
+		t.Error("timestamps dont match")
+	}
+	now := time.Now()
+	device.CreatedAt = now
+	device.LastUpdate = now
+	deviceFromMessage.CreatedAt = now
+	deviceFromMessage.LastUpdate = now
+	if !reflect.DeepEqual(device, deviceFromMessage) {
+		t.Error(messages[1])
 		t.Error(messages)
 		return
 	}
@@ -155,7 +183,7 @@ func testWebSocket(t *testing.T, dbImpl string) {
 	if !reflect.DeepEqual(messages[2], model.EventMessage{
 		Type: model.WsAuthRequestType,
 	}) {
-		t.Error(messages[0])
+		t.Error(messages[2])
 		t.Error(messages)
 		return
 	}

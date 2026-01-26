@@ -33,7 +33,7 @@ func Postgres(ctx context.Context, wg *sync.WaitGroup, dbname string) (conStr st
 	return
 }
 
-func PostgresWithNetwork(ctx context.Context, wg *sync.WaitGroup, dbname string) (conStr string, ip string, port string, err error) {
+func PostgresWithNetwork(ctx context.Context, wg *sync.WaitGroup, dbname string) (conStr string, host string, port string, err error) {
 	log.Println("start postgres")
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
@@ -64,16 +64,23 @@ func PostgresWithNetwork(ctx context.Context, wg *sync.WaitGroup, dbname string)
 		log.Println("DEBUG: remove container postgres", c.Terminate(context.Background()))
 	}()
 
-	ip, err = c.ContainerIP(ctx)
-	if err != nil {
-		return "", "", "", err
+	host = "host.docker.internal"
+	port = "5432"
+
+	if inCIEnv() {
+		host, err = c.ContainerIP(ctx)
+		if err != nil {
+			return
+		}
+	} else {
+		temp, err := c.MappedPort(ctx, "5432/tcp")
+		if err != nil {
+			return "", "", "", err
+		}
+		port = temp.Port()
 	}
-	temp, err := c.MappedPort(ctx, "5432/tcp")
-	if err != nil {
-		return "", "", "", err
-	}
-	port = temp.Port()
-	conStr = fmt.Sprintf("postgres://usr:pw@%s:%s/%s?sslmode=disable", ip, "5432", dbname)
+
+	conStr = fmt.Sprintf("postgres://usr:pw@%s:%s/%s?sslmode=disable", host, port, dbname)
 
 	err = Retry(1*time.Minute, func() error {
 		log.Println("try pg conn", conStr)
@@ -92,7 +99,7 @@ func PostgresWithNetwork(ctx context.Context, wg *sync.WaitGroup, dbname string)
 		return "", "", "", err
 	}
 
-	return conStr, ip, port, err
+	return conStr, host, port, err
 }
 
 func Retry(timeout time.Duration, f func() error) (err error) {

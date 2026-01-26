@@ -14,10 +14,13 @@ import (
 )
 
 func TestSortByCreatedAt(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testSortByCreatedAt(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testSortByCreatedAt(t, "postgres")
 	})
 }
@@ -57,19 +60,19 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "foo",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "bar",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user1", model.Device{
+	t.Run("create device 3", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "batz",
 		},
@@ -167,6 +170,7 @@ func testSortByCreatedAt(t *testing.T, dbImpl string) {
 }
 
 func TestSortByUpdatedAt(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
 		testSortByUpdatedAt(t, "mongo")
 	})
@@ -210,19 +214,19 @@ func testSortByUpdatedAt(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "foo",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "bar",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user1", model.Device{
+	t.Run("create device 3", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "batz",
 		},

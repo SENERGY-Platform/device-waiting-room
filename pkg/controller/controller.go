@@ -72,7 +72,7 @@ func (this *Controller) SetDevice(token auth.Token, device model.Device) (result
 	}
 	err, errCode = this.db.SetDevice(device)
 	if err == nil {
-		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device)
 	}
 	return device, err, errCode
 }
@@ -194,7 +194,7 @@ func (this *Controller) HideDevice(token auth.Token, localId string) (err error,
 	device.Hidden = true
 	err, errCode = this.db.SetDevice(device)
 	if err == nil {
-		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device)
 	}
 	return err, errCode
 }
@@ -221,7 +221,7 @@ func (this *Controller) ShowDevice(token auth.Token, localId string) (err error,
 	device.Hidden = false
 	err, errCode = this.db.SetDevice(device)
 	if err == nil {
-		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device.LocalId)
+		this.Trigger(token.GetUserId(), model.EventUpdateSetType, device)
 	}
 	return err, errCode
 }

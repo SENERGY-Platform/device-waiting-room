@@ -24,7 +24,7 @@ import (
 	"sync"
 )
 
-func MongoDB(ctx context.Context, wg *sync.WaitGroup) (hostport string, containerip string, err error) {
+func MongoDB(ctx context.Context, wg *sync.WaitGroup) (port string, host string, err error) {
 	log.Println("start mongo")
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
@@ -49,15 +49,21 @@ func MongoDB(ctx context.Context, wg *sync.WaitGroup) (hostport string, containe
 		log.Println("DEBUG: remove container mongo", c.Terminate(context.Background()))
 	}()
 
-	containerip, err = c.ContainerIP(ctx)
-	if err != nil {
-		return "", "", err
-	}
-	temp, err := c.MappedPort(ctx, "27017/tcp")
-	if err != nil {
-		return "", "", err
-	}
-	hostport = temp.Port()
+	host = "host.docker.internal"
+	port = "27017"
 
-	return hostport, containerip, err
+	if inCIEnv() {
+		host, err = c.ContainerIP(ctx)
+		if err != nil {
+			return "", "", err
+		}
+	} else {
+		temp, err := c.MappedPort(ctx, "27017/tcp")
+		if err != nil {
+			return "", "", err
+		}
+		port = temp.Port()
+	}
+
+	return port, host, err
 }

@@ -14,10 +14,13 @@ import (
 )
 
 func TestSearch(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testSearch(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testSearch(t, "postgres")
 	})
 }
@@ -57,21 +60,21 @@ func testSearch(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "foo",
 			Name:    "bar",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "bar",
 			Name:    "batz",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user1", model.Device{
+	t.Run("create device 3", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "batz",
 			Name:    "42",
@@ -150,10 +153,13 @@ func testSearch(t *testing.T, dbImpl string) {
 }
 
 func TestSearch2(t *testing.T) {
+	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
 		testSearch2(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
 		testSearch2(t, "postgres")
 	})
 }
@@ -193,21 +199,21 @@ func testSearch2(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "1",
 			Name:    "HEAT_COST_ALLOCATOR",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "2",
 			Name:    "HEAT",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user1", model.Device{
+	t.Run("create device 3", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "3",
 			Name:    "COST",
@@ -355,21 +361,21 @@ func testSearch3(t *testing.T, dbImpl string) {
 	}
 	time.Sleep(time.Second)
 
-	t.Run("create device 1", sendDevice(config, "user1", model.Device{
+	t.Run("create device 1", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "1",
 			Name:    "WEH WATER 79606",
 		},
 	}))
 
-	t.Run("create device 2", sendDevice(config, "user1", model.Device{
+	t.Run("create device 2", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "2",
 			Name:    "HYD WATER 2520611",
 		},
 	}))
 
-	t.Run("create device 3", sendDevice(config, "user1", model.Device{
+	t.Run("create device 3", sendDevice(config, "user1", &model.Device{
 		Device: models.Device{
 			LocalId: "3",
 			Name:    "TECH AIR 2520622",
