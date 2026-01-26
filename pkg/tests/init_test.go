@@ -54,11 +54,11 @@ func deployTestPersistenceContainer(dbImpl string, config configuration.Config, 
 	config.DbImpl = dbImpl
 	switch dbImpl {
 	case configuration.Mongo:
-		mongoPort, _, err := docker.MongoDB(ctx, wg)
+		mongoPort, mongoHost, err := docker.MongoDB(ctx, wg)
 		if err != nil {
 			return config, err
 		}
-		config.MongoUrl = "mongodb://localhost:" + mongoPort
+		config.MongoUrl = "mongodb://" + mongoHost + ":" + mongoPort
 	case configuration.Postgres:
 		connstr, err := docker.Postgres(ctx, wg, "test")
 		if err != nil {
