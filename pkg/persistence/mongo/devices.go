@@ -1,14 +1,15 @@
 package mongo
 
 import (
+	"log"
+	"net/http"
+	"strings"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	persistencoptions "github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"net/http"
-	"strings"
 )
 
 const deviceLocalIdFieldName = "Device.LocalId"

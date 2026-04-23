@@ -18,14 +18,14 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	options "github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
 	"github.com/julienschmidt/httprouter"
-	"log"
-	"net/http"
-	"strconv"
 )
 
 func init() {
@@ -85,7 +85,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 		}
 		return
 	})
@@ -121,7 +121,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 		}
 		return
 	})
@@ -188,7 +188,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 		}
 		return
 	})
@@ -221,7 +221,7 @@ func DevicesEndpoints(config configuration.Config, control Controller, router *h
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
+			config.GetLogger().Error("unable to encode response", "error", err)
 		}
 		return
 	})

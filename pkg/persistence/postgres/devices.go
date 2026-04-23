@@ -22,13 +22,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
-	"github.com/SENERGY-Platform/models/go/models"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
+	"github.com/SENERGY-Platform/models/go/models"
 )
 
 func init() {
@@ -49,28 +50,28 @@ func CreateDevicesTable(db *Postgres) error {
     	updated_at timestamptz);
 `)
 	if err != nil {
-		log.Println("ERROR: unable to create table:", err)
+		slog.Error("unable to create table", "error", err)
 		return err
 	}
 
 	// Create trigram extension
 	_, err = db.db.ExecContext(ctx, `CREATE EXTENSION IF NOT EXISTS pg_trgm;`)
 	if err != nil {
-		log.Println("ERROR: unable to create extension:", err)
+		slog.Error("unable to create extension", "error", err)
 		return err
 	}
 
 	// Create index for name
 	_, err = db.db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS devices_name_trgm_idx ON devices USING gin (name gin_trgm_ops);`)
 	if err != nil {
-		log.Println("ERROR: unable to create index:", err)
+		slog.Error("unable to create index", "error", err)
 		return err
 	}
 
 	// Create index for local_id
 	_, err = db.db.ExecContext(ctx, `CREATE INDEX IF NOT EXISTS devices_local_id_trgm_idx ON devices USING gin (local_id gin_trgm_ops);`)
 	if err != nil {
-		log.Println("ERROR: unable to create index:", err)
+		slog.Error("unable to create index", "error", err)
 		return err
 	}
 
@@ -285,7 +286,7 @@ func (this *Postgres) RemoveDevice(localId string) (error, int) {
 	timeout := this.getTimeoutContext()
 	_, err := this.db.ExecContext(timeout, query, localId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, http.StatusOK
 		}
 		return err, http.StatusInternalServerError

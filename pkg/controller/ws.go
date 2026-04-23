@@ -2,11 +2,11 @@ package controller
 
 import (
 	"context"
+	"runtime/debug"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"github.com/gorilla/websocket"
-	"log"
-	"runtime/debug"
 )
 
 func (this *Controller) HandleWs(conn *websocket.Conn) {
@@ -16,7 +16,7 @@ func (this *Controller) HandleWs(conn *websocket.Conn) {
 	ctx, close := context.WithCancel(context.Background())
 	err := this.startPing(ctx, conn)
 	if err != nil {
-		log.Println("ERROR:", err)
+		this.config.GetLogger().Error("unable to start websocket ping", "error", err)
 		debug.PrintStack()
 		close()
 		return
@@ -30,20 +30,18 @@ func (this *Controller) HandleWs(conn *websocket.Conn) {
 				return
 			}
 			if err != nil {
-				log.Println("ERROR: ws read:", err)
+				this.config.GetLogger().Error("unable to read ws message", "error", err)
 				return
 			}
 			switch msg.Type {
 			case model.WsAuthType:
 				err = this.handleWsAuth(connId, close, conn, msg)
 				if err != nil {
-					log.Println("ERROR: handleWsAuth:", err)
+					this.config.GetLogger().Error("unable to handle ws auth", "error", err)
 					return
 				}
 			default:
-				if this.config.Debug {
-					log.Println("DEBUG: ignore client ws message", msg)
-				}
+				this.config.GetLogger().Debug("unknown ws message --> ignore client ws message", "message", msg)
 			}
 		}
 	}()
@@ -81,7 +79,7 @@ func (this *Controller) handleWsAuth(connId string, close func(), conn *websocke
 			this.Unsubscribe(connId)
 			err = this.wsSendAuthRequest(conn)
 			if err != nil {
-				log.Println("ERROR: unable to send auth request", err)
+				this.config.GetLogger().Error("unable to send auth request", "error", err)
 				close()
 			}
 			return
@@ -91,7 +89,7 @@ func (this *Controller) handleWsAuth(connId string, close func(), conn *websocke
 			Payload: payload,
 		})
 		if err != nil {
-			log.Println("ERROR: unable to send update message", err)
+			this.config.GetLogger().Error("unable to send update message", "error", err)
 			close()
 		}
 	})

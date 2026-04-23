@@ -1,11 +1,11 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/gorilla/websocket"
 	"github.com/julienschmidt/httprouter"
-	"log"
-	"net/http"
 )
 
 func init() {
@@ -24,7 +24,7 @@ func WsEndpoints(config configuration.Config, control Controller, router *httpro
 	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		c, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
-			log.Print("ERROR:", err)
+			config.GetLogger().Error("unable to upgrade http connection to websocket", "error", err)
 			return
 		}
 		defer c.Close()

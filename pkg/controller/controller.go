@@ -5,6 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"runtime/debug"
+	"sync"
+	"time"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
@@ -12,11 +17,6 @@ import (
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/gorilla/websocket"
-	"log"
-	"net/http"
-	"runtime/debug"
-	"sync"
-	"time"
 )
 
 type Controller struct {
@@ -97,7 +97,7 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 		}
 		d, err := time.ParseDuration(this.config.DeleteAfterUseWaitDuration)
 		if err != nil {
-			log.Println("WARNING: unable to parse DeleteAfterUseWaitDuration;", err)
+			this.config.GetLogger().Warn("unable to parse DeleteAfterUseWaitDuration", "error", err)
 			return
 		}
 		if d == 0 {
@@ -106,7 +106,7 @@ func (this *Controller) UseDevice(token auth.Token, localId string) (err error, 
 		time.Sleep(d)
 		err, code := this.db.RemoveDevice(localId)
 		if err != nil {
-			log.Println("ERROR:", code, err)
+			this.config.GetLogger().Error("unable to delete device", "error", err, "code", code)
 			debug.PrintStack()
 		}
 	}()
@@ -250,7 +250,7 @@ func (this *Controller) startPing(ctx context.Context, conn *websocket.Conn) (er
 			case <-ticker.C:
 				err := conn.WriteMessage(websocket.PingMessage, nil)
 				if err != nil {
-					log.Println("ERROR: sending ws ping:", err)
+					this.config.GetLogger().Error("error while sending ws ping", "error", err)
 					return
 				}
 			}

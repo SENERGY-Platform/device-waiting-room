@@ -18,44 +18,47 @@ package api
 
 import (
 	"context"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/api/util"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
-	"github.com/gorilla/websocket"
-	"github.com/julienschmidt/httprouter"
+	"errors"
 	"log"
 	"net/http"
 	"reflect"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/api/util"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/auth"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/persistence/options"
+	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
+	"github.com/gorilla/websocket"
+	"github.com/julienschmidt/httprouter"
 )
 
 var endpoints = []func(config configuration.Config, control Controller, router *httprouter.Router){}
 
 func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config, control Controller) {
-	log.Println("start api")
+	config.GetLogger().Info("start api")
 	router := httprouter.New()
 	for _, e := range endpoints {
-		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
+		config.GetLogger().Info("add endpoint", "name", runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
 		e(config, control, router)
 	}
-	log.Println("add logging and cors")
+	config.GetLogger().Info("add logging and cors")
 	corsHandler := util.NewCors(router)
-	logger := util.NewLogger(corsHandler)
-	log.Println("listen on port", config.ApiPort)
+	logger := accesslog.New(corsHandler)
+	config.GetLogger().Info("start http server", "port", config.ApiPort)
 	server := &http.Server{Addr: ":" + config.ApiPort, Handler: logger, WriteTimeout: 10 * time.Second, ReadTimeout: 2 * time.Second, ReadHeaderTimeout: 2 * time.Second}
 	wg.Add(1)
 	go func() {
-		log.Println("Listening on ", server.Addr)
+		config.GetLogger().Info("listening", "addr", server.Addr)
 		if err := server.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
-				log.Println("ERROR: api server error", err)
+			if !errors.Is(err, http.ErrServerClosed) {
+				config.GetLogger().Error("api server error", "error", err)
 				log.Fatal(err)
 			} else {
-				log.Println("closing api server")
+				config.GetLogger().Info("api server closed")
 			}
 			wg.Done()
 		}
@@ -63,7 +66,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, config configuration.Config,
 
 	go func() {
 		<-ctx.Done()
-		log.Println("DEBUG: api shutdown", server.Shutdown(context.Background()))
+		config.GetLogger().Info("api shutdown", "result", server.Shutdown(context.Background()))
 	}()
 }
 

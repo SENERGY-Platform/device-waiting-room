@@ -19,11 +19,12 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
-	_ "github.com/lib/pq"
-	"log"
+	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
+	_ "github.com/lib/pq"
 )
 
 type Postgres struct {
@@ -39,7 +40,7 @@ func New(ctx context.Context, wg *sync.WaitGroup, conf configuration.Config) (*P
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Println("ERROR: ping=", err)
+		conf.GetLogger().Error("unable to ping postgres", "error", err)
 		return nil, err
 	}
 	client := &Postgres{db: db}
@@ -64,7 +65,7 @@ func New(ctx context.Context, wg *sync.WaitGroup, conf configuration.Config) (*P
 }
 
 func (this *Postgres) disconnect() {
-	log.Println("disconnect postgres:", this.db.Close())
+	slog.Info("disconnect postgres", "result", this.db.Close())
 }
 
 func (this *Postgres) getTimeoutContext() context.Context {

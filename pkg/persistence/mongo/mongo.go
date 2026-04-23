@@ -3,17 +3,17 @@ package mongo
 import (
 	"context"
 	"errors"
+	"reflect"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"github.com/SENERGY-Platform/device-waiting-room/pkg/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"reflect"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Mongo struct {
@@ -98,7 +98,7 @@ func (this *Mongo) ensureTextIndex(collection *mongo.Collection, indexname strin
 
 func (this *Mongo) disconnect() {
 	timeout, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	log.Println("disconnect mongo:", this.db.Disconnect(timeout))
+	this.config.GetLogger().Info("disconnect mongo", "result", this.db.Disconnect(timeout))
 }
 
 func (this *Mongo) getSearchTokens(device model.Device) string {

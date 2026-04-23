@@ -19,13 +19,14 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg"
-	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/SENERGY-Platform/device-waiting-room/pkg"
+	"github.com/SENERGY-Platform/device-waiting-room/pkg/configuration"
 )
 
 func main() {
@@ -41,6 +42,7 @@ func main() {
 	if migrate != nil && *migrate != "" {
 		err = pkg.Migrate(conf, *migrate)
 		if err != nil {
+			conf.GetLogger().Error("fatal error", "error", err)
 			log.Fatal(err)
 		}
 		return
@@ -51,13 +53,14 @@ func main() {
 
 	err = pkg.Start(ctx, wg, conf)
 	if err != nil {
+		conf.GetLogger().Error("fatal error", "error", err)
 		log.Fatal(err)
 	}
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	sig := <-shutdown
-	log.Println("received shutdown signal", sig)
+	conf.GetLogger().Info("received shutdown signal", "signal", sig)
 	cancel()
 	wg.Wait() //wait for clean disconnects
 }
