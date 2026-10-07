@@ -20,11 +20,11 @@ type Config struct {
 	ApiPort string `json:"api_port"`
 	DbImpl  DbImpl `json:"db_impl"`
 
-	MongoUrl              string `json:"mongo_url"`
+	MongoUrl              string `json:"mongo_url" config:"secret"`
 	MongoTable            string `json:"mongo_table"`
 	MongoDeviceCollection string `json:"mongo_device_collection"`
 
-	PostgresConnStr string `json:"postgres_conn_str"`
+	PostgresConnStr string `json:"postgres_conn_str" config:"secret"`
 
 	Debug                      bool   `json:"debug"`
 	DeviceManagerUrl           string `json:"device_manager_url"`
@@ -79,10 +79,13 @@ func handleEnvironmentVars(config *Config) {
 	configType := configValue.Type()
 	for index := 0; index < configType.NumField(); index++ {
 		fieldName := configType.Field(index).Name
+		fieldConfig := configType.Field(index).Tag.Get("config")
 		envName := fieldNameToEnvName(fieldName)
 		envValue := os.Getenv(envName)
 		if envValue != "" {
-			fmt.Println("use environment variable: ", envName, " = ", envValue)
+			if !strings.Contains(fieldConfig, "secret") {
+				fmt.Println("use environment variable: ", envName, " = ", envValue)
+			}
 			if configValue.FieldByName(fieldName).Kind() == reflect.Int64 {
 				i, _ := strconv.ParseInt(envValue, 10, 64)
 				configValue.FieldByName(fieldName).SetInt(i)
