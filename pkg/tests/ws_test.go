@@ -18,19 +18,22 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// TestWebSocket is not parallel: it moves the package-global auth.TimeNow to expire tokens,
+// which would also expire the tokens of every test running at the same time.
 func TestWebSocket(t *testing.T) {
-	t.Parallel()
 	t.Run("mongo", func(t *testing.T) {
-		t.Parallel()
 		testWebSocket(t, "mongo")
 	})
 	t.Run("postgres", func(t *testing.T) {
-		t.Parallel()
 		testWebSocket(t, "postgres")
 	})
 }
 
 func testWebSocket(t *testing.T, dbImpl string) {
+	timeNow := auth.TimeNow
+	t.Cleanup(func() {
+		auth.TimeNow = timeNow
+	})
 	auth.TimeNow = func() time.Time {
 		return time.Time{}
 	}
